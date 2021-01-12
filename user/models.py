@@ -17,7 +17,7 @@ class User(models.Model):
         db_table = 'users'
 
 
-class Shop(modesl.Model):
+class Shop(models.Model):
     city       = models.CharField(max_length=45)
     address    = models.TextField()
     address_en = models.TextField()
@@ -30,7 +30,7 @@ class Shop(modesl.Model):
 
 class Coupons(models.Model):
     name         = models.CharField(max_length=800)
-    sale_percent = models.IntegalField
+    sale_percent = models.IntegerField
 
     class Meta:
         db_table = 'coupons'
@@ -69,13 +69,13 @@ class Order_status(models.Model):
         db_table = 'order_statuses'
 
 
-class Cart_item:
+class Cart_item(models.Model):
     user    = models.ForeignKey('User',    on_delete=models.CASCADE)
     product = models.ForeignKey('Product', on_delete=models.CASCADE)
     size    = models.ForeignKey('Size',    on_delete=models.CASCADE)
     color   = models.ForeignKey('Color',   on_delete=models.CASCADE)
     order   = models.ForeignKey('Order',   on_delete=models.CASCADE)
-    count   = models.IntegalField
+    count   = models.IntegerField
 
     class Meta:
         db_table = 'cart_items'
