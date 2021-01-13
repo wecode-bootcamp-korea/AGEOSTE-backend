@@ -50,12 +50,12 @@ class ProductSize(models.Model):
 
 
 class ProductColorImage(models.Model):
-    product   = models.ForeignKey('Product', on_delete=models.CASCADE)
-    color     = models.ForeignKey('Color', on_delete=models.CASCADE)
-    image_url = models.URLField(max_length=2048)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    color   = models.ForeignKey('Color', on_delete=models.CASCADE)
+    image   = models.ForeignKey('Image', on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "products_colors_image"
+        db_table = "products_colors_images"
 
 
 class ProductHashtag(models.Model):
@@ -87,6 +87,13 @@ class Hashtag(models.Model):
         db_table = "hashtags"
 
 
+class Image(models.Model):
+    image_url = models.URLField(max_length=2048)
+
+    class Meta:
+        db_table = "images"
+
+
 class Review(models.Model):
     user        = models.ForeignKey('user.User', on_delete=models.CASCADE)
     product     = models.ForeignKey('Product', on_delete=models.CASCADE)
@@ -98,4 +105,3 @@ class Review(models.Model):
 
     class Meta:
         db_table = "reviews"
-
