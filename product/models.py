@@ -35,7 +35,6 @@ class Product(models.Model):
     hashtags      = models.ManyToManyField('Hashtag', through ='ProductHashtag')
     sizes         = models.ManyToManyField('Size', through ='ProductSize')
     colors        = models.ManyToManyField('Color', through ='ProductColorImage')
-    images        = models.ManyToManyField('Image', through ='ProductColorImage')
 
     class Meta:
         db_table = "products"
