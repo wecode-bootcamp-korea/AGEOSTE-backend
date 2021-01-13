@@ -70,11 +70,11 @@ class Order_status(models.Model):
 
 
 class Cart_item(models.Model):
-    user    = models.ForeignKey('User',    on_delete=models.CASCADE)
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-    size    = models.ForeignKey('Size',    on_delete=models.CASCADE)
-    color   = models.ForeignKey('Color',   on_delete=models.CASCADE)
-    order   = models.ForeignKey('Order',   on_delete=models.CASCADE)
+    user    = models.ForeignKey('User',            on_delete=models.CASCADE)
+    product = models.ForeignKey('product.Product', on_delete=models.CASCADE)
+    size    = models.ForeignKey('product.Size',    on_delete=models.CASCADE)
+    color   = models.ForeignKey('product.Color',   on_delete=models.CASCADE)
+    order   = models.ForeignKey('Order',           on_delete=models.CASCADE)
     count   = models.IntegerField
 
     class Meta:

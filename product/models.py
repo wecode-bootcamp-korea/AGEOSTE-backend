@@ -95,8 +95,8 @@ class Image(models.Model):
 
 
 class Review(models.Model):
-    user        = models.ForeignKey('User',    on_delete=models.CASCADE)
-    prodct      = models.ForeignKey('Product', on_delete=models.CASCADE)
+    user        = models.ForeignKey('user.User',    on_delete=models.CASCADE)
+    product     = models.ForeignKey('Product',      on_delete=models.CASCADE)
     score       = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(5)])
     created_at  = models.DateTimeField(auto_now_add=True)
     description = models.TextField(null=True)
