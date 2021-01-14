@@ -14,7 +14,7 @@ class SignupView(View):
     def post(self, request):
         try:
             data          = json.loads(request.body)
-            name          = data.get('name')
+            name          = data['name']
             email         = data['email']
             phone_number  = data['phone_number']
             date_of_birth = data.get('date_of_birth')
@@ -24,7 +24,7 @@ class SignupView(View):
             password_rule     = re.compile('^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$')
             phone_number_rule = re.compile('010-?[0-9]{4}-?[0-9]{4}')
 
-            if not email or not phone_number or not password:
+            if not email or not phone_number or not password or not name:
                 return JsonResponse({"error": "KEY_ERROR"})
 
             if not email_rule.match(email):
@@ -40,7 +40,7 @@ class SignupView(View):
                 return JsonResponse({"error": "양식에 맞지 않는 휴대폰 번호입니다."}, status=400)
 
             if User.objects.filter(phone_number=phone_number).exists():
-                return JsonResponse({"error": "이미 존재하는 휴대폰 번호 입니다."}, status=400)
+                return JsonResponse({"error": "이미 존재하는 휴대폰 번호입니다."}, status=400)
 
             encoded_pw = password.encode('utf-8')
             hashed_pw = bcrypt.hashpw(encoded_pw, bcrypt.gensalt()).decode('utf-8')
