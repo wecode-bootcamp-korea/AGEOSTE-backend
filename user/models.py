@@ -1,14 +1,13 @@
 from django.db              import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class User(models.Model):
     name          = models.CharField(max_length=45)
     email         = models.EmailField(max_length=800)
     phone_number  = models.CharField(max_length=800)
-    date_of_birth = models.DateField()
+    date_of_birth = models.DateField(null=True)
     password      = models.CharField(max_length=100)
-    address       = models.CharField(max_length=1000)
+    address       = models.CharField(max_length=1000,null=True)
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)
     favorite_shop = models.ForeignKey('Shop', on_delete=models.SET_NULL, null=True)

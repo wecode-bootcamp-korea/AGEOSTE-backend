@@ -7,13 +7,13 @@ from .models          import Product
 
 class ProductsListView(View):
     def get(self, request):
-        menu     = request.GET.get('menu', None)
-        category = request.GET.get('category', None)
+        menu         = request.GET.get('menu', None)
+        sub_category = request.GET.get('sub_category', None)
 
-        if category: # 메뉴+카테고리를 입력받았을 경우. 이후 카테고리를 입력하지 않고, 메뉴만 검색했을 경우의 수 추가예정
+        if sub_category: # 메뉴+카테고리를 입력받았을 경우. 이후 카테고리를 입력하지 않고, 메뉴만 검색했을 경우의 수 추가예정
 
             # prefetch_realted, annotate 사용했는데 잘 쓴건지 모르겠네요...
-            products     = Product.objects.filter(category__name=category, category__menu__name=menu).prefetch_related('productcolorimages').annotate(color_count=Count('colors', distinct=True)) 
+            products     = Product.objects.filter(sub_category__name=sub_category, sub_category__main_category__menu__name=menu).prefetch_related('productcolorimages').annotate(color_count=Count('colors', distinct=True)) 
             product_list = []
 
             for product in products:
