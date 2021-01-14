@@ -2,10 +2,10 @@ import jwt
 
 from django.http import JsonResponse
 
-from ageoste.settings import SECRET
+from ageoste.settings import SECRET_KEY
 from user.models      import User
 
-def login(func):
+def check_user(func):
     def wrapper(self, request, *args, **kwargs):
         try:
             token        = request.headers.get('Authorization')
