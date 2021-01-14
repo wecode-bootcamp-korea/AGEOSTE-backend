@@ -9,25 +9,17 @@ class Menu(models.Model):
         db_table = "menus"
 
 
-class MainCategory(models.Model):
+class Category(models.Model):
     name  = models.CharField(max_length=45)
     menu  = models.ForeignKey('Menu', on_delete=models.CASCADE)
 
     class Meta:
-        db_table = "main_categories"
-
-
-class SubCategory(models.Model):
-    name          = models.CharField(max_length=45)
-    main_category = models.ForeignKey('MainCategory', on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "sub_categories"
+        db_table = "categories"
 
 
 class Product(models.Model):
     name          = models.CharField(max_length=45)
-    sub_category  = models.ForeignKey('SubCategory', on_delete=models.CASCADE)
+    sub_category  = models.ForeignKey('Category', on_delete=models.CASCADE)
     code          = models.CharField(max_length=45)
     price         = models.DecimalField(max_digits = 20, decimal_places = 2)
     description   = models.TextField(null=True)
