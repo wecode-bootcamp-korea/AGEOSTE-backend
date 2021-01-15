@@ -3,12 +3,13 @@ import re
 import bcrypt
 import jwt
 
-from django.http  import JsonResponse, HttpResponse
-from django.views import View
+from django.http            import JsonResponse, HttpResponse
+from django.views           import View
+from django.core.exceptions import ValidationError
 
 from .models     import User
 from my_settings import SECRET
-from .validators import ValidationError
+from .utils      import check_user
 from .validators import validate_email, validate_password, validate_phone_number
 
 
@@ -37,12 +38,11 @@ class SignupView(View):
             if User.objects.filter(phone_number=phone_number).exists():
                 return JsonResponse({"error": "이미 존재하는 휴대폰 번호입니다."}, status=400)
 
-            if len(date_of_birth) != 8:
-                return JsonResponse({"error": "생년월일은 8자리의 숫자만 입력 가능합니다."}, status=400)
-
             if date_of_birth is not None:
-                birth = str(date_of_birth)
-                birth = birth[:4] + '-' + birth[4:6] + '-' + birth[6:]
+                if len(date_of_birth) != 8 :
+                       return JsonResponse({"error": "생년월일은 8자리의 숫자만 입력 가능합니다."}, status=400)
+                date_of_birth = str(date_of_birth)
+                date_of_birth = date_of_birth[:4] + '-' + date_of_birth[4:6] + '-' + date_of_birth[6:]
 
             encoded_pw = password.encode('utf-8')
             hashed_pw  = bcrypt.hashpw(encoded_pw, bcrypt.gensalt()).decode('utf-8')
@@ -51,7 +51,7 @@ class SignupView(View):
                 name          = name,
                 email         = email,
                 phone_number  = phone_number,
-                date_of_birth = birth,
+                date_of_birth = date_of_birth,
                 password      = hashed_pw
             )
             user.full_clean()
@@ -90,3 +90,5 @@ class SigninView(View):
 
         except User.DoesNotExist:
             return JsonResponse({"error": "존재하지 않는 아이디입니다."}, status=401)
+
+
