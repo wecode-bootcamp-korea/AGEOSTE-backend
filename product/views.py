@@ -41,7 +41,7 @@ class ProductDetailView(View):
         try:
             product          = Product.objects.get(id=product_id)
             review_score_avg = product.reviews.aggregate(review_score_avg = Avg('score'))
-            
+
             color_images = [{
                 'color_name' : color_image.color.name,
                 'image_url'  : color_image.image.image_url
@@ -73,5 +73,3 @@ class ProductDetailView(View):
             return JsonResponse({'MESSAGE' : "해당 제품이 존재하지 않습니다."}, status=401)
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
-
-        
