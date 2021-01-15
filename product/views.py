@@ -16,12 +16,20 @@ class ProductListView(View):
 
             # order          = request.GET.get('order', None)
 
-            # filter_dict = {}
-            # filter_color   = request.GET.getlist('color', None)
-            # if filter_color:
-            #     filter_dict['colors_in'] = filter_color
+            filter_dict = {}
+            filter_color   = request.GET.getlist('color', None)
+            if filter_color:
+                filter_dict['productcolorimages__color__name__in'] = filter_color
 
-            # products.filter(**filter_dict)
+            filter_size   = request.GET.getlist('size', None)
+            if filter_size:
+                filter_dict['sizes__name__in'] = filter_size
+
+            filter_hashtag   = request.GET.getlist('hashtag', None)
+            if filter_hashtag:
+                filter_dict['hashtags__name__in'] = filter_hashtag
+
+            products = products.filter(**filter_dict)
 
             page_count = 20
             end_page   = page * page_count
