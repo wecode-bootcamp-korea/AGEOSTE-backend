@@ -62,8 +62,8 @@ class ProductDetailView(View):
                 "price"            : product.price,
                 "sail_percent"     : product.discount_rate,
                 "review_score_avg" : int(round(review_score_avg['review_score_avg'],0)),
-                "hashtags"         : [hashtag.name for hashtag in product.hashtags.all()], # all지우면 안되는지?
-                "sizes"            : [size.name for size in product.sizes.all()], # all지우면 안되는지?
+                "hashtags"         : [hashtag.name for hashtag in product.hashtags.all()],
+                "sizes"            : [size.name for size in product.sizes.all()],
                 "color_images"     : color_images,
                 "review"           : review,
             }
