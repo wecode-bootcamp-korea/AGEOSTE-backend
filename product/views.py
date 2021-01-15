@@ -13,6 +13,16 @@ class ProductListView(View):
                 sub_category__main_category__menu__name=menu
             ).prefetch_related('productcolorimages__image', 'reviews').annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
 
+
+            # order          = request.GET.get('order', None)
+
+            # filter_dict = {}
+            # filter_color   = request.GET.getlist('color', None)
+            # if filter_color:
+            #     filter_dict['colors_in'] = filter_color
+
+            # products.filter(**filter_dict)
+
             page_count = 20
             end_page   = page * page_count
             start_page = end_page - page_count
