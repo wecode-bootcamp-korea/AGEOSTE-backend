@@ -7,29 +7,19 @@ from .models          import Product
 class ProductListView(View):
     def get(self, request, menu, sub_category):
         try:
-            page     = int(request.GET.get('page', 1))
+            page  = int(request.GET.get('page', 1))
+            order = request.GET.get('order', 'id') # price, -price, score_avg
+            
             products = Product.objects.filter(
                 sub_category__name = sub_category, 
-                menu__name         = menu
-            ).prefetch_related('productcolorimages__image', 'reviews').annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
-
-
-            # order          = request.GET.get('order', None)
-
-            filter_dict = {}
-            filter_color   = request.GET.getlist('color', None)
-            if filter_color:
-                filter_dict['productcolorimages__color__name__in'] = filter_color
-
-            filter_size   = request.GET.getlist('size', None)
-            if filter_size:
-                filter_dict['sizes__name__in'] = filter_size
-
-            filter_hashtag   = request.GET.getlist('hashtag', None)
-            if filter_hashtag:
-                filter_dict['hashtags__name__in'] = filter_hashtag
-
-            products = products.filter(**filter_dict)
+                menu__name = menu
+            ).filter(
+                **{
+                    'productcolorimages__color__name__in' if key == 'color' else key + '__name__in' : request.GET.getlist(key)
+                    for key in request.GET 
+                    if key in ['color','size','hashtag']
+                }
+            ).prefetch_related('productcolorimages__image', 'reviews').annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)).order_by(order)
 
             page_count = 20
             end_page   = page * page_count
