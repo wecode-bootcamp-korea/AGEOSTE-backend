@@ -10,7 +10,7 @@ class ProductListView(View):
             page     = int(request.GET.get('page', 1))
             products = Product.objects.filter(
                 sub_category__name = sub_category, 
-                sub_category__main_category__menu__name=menu
+                menu__name         = menu
             ).prefetch_related('productcolorimages__image', 'reviews').annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
 
 
