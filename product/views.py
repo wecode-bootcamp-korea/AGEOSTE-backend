@@ -36,7 +36,7 @@ class ProductsListView(View):
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
 
 
-class ProductDetailView(View):
+class ProductView(View):
     def get(self, request, product_id):
         try:
             product          = Product.objects.get(id=product_id)
@@ -46,7 +46,7 @@ class ProductDetailView(View):
                 'color_name' : color_image.color.name,
                 'image_url'  : color_image.image.image_url
             } for color_image in product.productcolorimages.all().prefetch_related('color','image')]
-            
+
             review = [{
                 'user_name'   : review.user.name,
                 'image_url'   : review.image_url, 
@@ -69,8 +69,9 @@ class ProductDetailView(View):
             }
             
             return JsonResponse({'product' : product_info},status = 200)
+        except Product.DoesNotExist():
+            return JsonResponse({'MESSAGE' : "해당 제품이 존재하지 않습니다."}, status=401)
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
 
-
-
+        

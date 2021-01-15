@@ -40,43 +40,11 @@ class Product(models.Model):
         db_table = "products"
 
 
-class ProductSize(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-    size    = models.ForeignKey('Size', on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "products_sizes"
-
-
-class ProductColorImage(models.Model):
-    product = models.ForeignKey('Product', related_name="productcolorimages", on_delete=models.CASCADE)
-    color   = models.ForeignKey('Color', on_delete=models.CASCADE)
-    image   = models.ForeignKey('Image', null= True, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "products_colors_images"
-
-
-class ProductHashtag(models.Model):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-    hashtag = models.ForeignKey('Hashtag', on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = "products_hashtags"
-
-
 class Size(models.Model):
     name = models.CharField(max_length=45)
 
     class Meta:
         db_table = "sizes"
-
-
-class Color(models.Model):
-    name = models.CharField(max_length=45)
-
-    class Meta:
-        db_table = "colors"
 
 
 class Hashtag(models.Model):
@@ -86,11 +54,42 @@ class Hashtag(models.Model):
         db_table = "hashtags"
 
 
+class Color(models.Model):
+    name = models.CharField(max_length=45)
+
+    class Meta:
+        db_table = "colors"
+
+
 class Image(models.Model):
     image_url = models.URLField(max_length=2048)
 
     class Meta:
         db_table = "images"
+
+
+class ProductSize(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    size    = models.ForeignKey('Size', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "products_sizes"
+
+class ProductHashtag(models.Model):
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    hashtag = models.ForeignKey('Hashtag', on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "products_hashtags"
+
+
+class ProductColorImage(models.Model):
+    product = models.ForeignKey('Product', related_name="productcolorimages", on_delete=models.CASCADE)
+    color   = models.ForeignKey('Color', on_delete=models.CASCADE)
+    image   = models.ForeignKey('Image', null= True, on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = "products_colors_images"
 
 
 class Review(models.Model):
