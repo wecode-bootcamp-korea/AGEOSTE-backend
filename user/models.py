@@ -1,17 +1,17 @@
-from django.db              import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db   import models
 
 
 class User(models.Model):
     name          = models.CharField(max_length=45)
     email         = models.EmailField(max_length=800)
     phone_number  = models.CharField(max_length=800)
-    date_of_birth = models.DateField()
     password      = models.CharField(max_length=100)
-    address       = models.CharField(max_length=1000)
+    date_of_birth = models.DateField(null=True, blank=True)
+    address       = models.CharField(max_length=1000, null=True, blank=True)
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)
-    favorite_shop = models.ForeignKey('Shop', on_delete=models.SET_NULL, null=True)
+    favorite_shop = models.ForeignKey('Shop', on_delete=models.SET_NULL, null=True, blank=True)
+    membership    = models.ForeignKey('Membership', on_delete=models.CASCADE, default = 1)
 
     class Meta:
         db_table = 'users'
@@ -19,8 +19,8 @@ class User(models.Model):
 
 class Shop(models.Model):
     city         = models.CharField(max_length=45)
+    name         = models.CharField(max_length=45)
     address      = models.CharField(max_length=1000)
-    address_en   = models.CharField(max_length=1000)
     phone_number = models.CharField(max_length=800)
     work_day     = models.CharField(max_length=800)
 
@@ -45,9 +45,8 @@ class UserCoupon(models.Model):
 
 
 class Membership(models.Model):
-    user        = models.ForeignKey('User', on_delete=models.CASCADE)
-    name        = models.CharField(max_length=800)
-    description = models.TextField(null=True)
+    grade         = models.CharField(max_length=800)
+    discount_rate = models.IntegerField(null=True)
 
     class Meta:
         db_table = 'memberships'
