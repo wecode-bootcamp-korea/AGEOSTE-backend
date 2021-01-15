@@ -100,13 +100,10 @@ class ProductSearchView(View):
             } for product in products[start_page:end_page]]
 
             return JsonResponse({
-                    'products_cnt' : products.count(),
-                    'products'     : product_list},
-                    status = 200
-                )
+                'products_cnt' : products.count(),
+                'products'     : product_list},
+                status = 200
+            )
 
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
-
-            
-
