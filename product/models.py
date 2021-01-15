@@ -1,6 +1,5 @@
 from django.db              import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db.models.deletion import CASCADE
 
 
 class Menu(models.Model):
@@ -30,7 +29,7 @@ class SubCategory(models.Model):
 class Product(models.Model):
     name          = models.CharField(max_length=45)
     sub_category  = models.ForeignKey('SubCategory', related_name='products', on_delete=models.CASCADE)
-    menu          = models.ForeignKey('Menu', on_delete=CASCADE)
+    menu          = models.ForeignKey('Menu', on_delete=models.CASCADE)
     code          = models.CharField(max_length=45)
     price         = models.DecimalField(max_digits = 20, decimal_places = 2)
     description   = models.TextField(null=True)

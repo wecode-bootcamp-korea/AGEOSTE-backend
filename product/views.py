@@ -72,7 +72,7 @@ class ProductDetailView(View):
             color_images = [{
                 'color_name' : color_image.color.name,
                 'image_url'  : color_image.image.image_url
-            } for color_image in product.productcolorimages.select_related('color','image')] # color.name으로 distinct() 걸어주고싶은데 잘 안됩니당..
+            } for color_image in product.productcolorimages.select_related('color','image')]
 
             review = [{
                 'user_name'   : review.user.name,
