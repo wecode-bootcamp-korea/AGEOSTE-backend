@@ -7,20 +7,25 @@ from .models          import Product
 class ProductListView(View):
     def get(self, request, menu, sub_category):
         try:
+            page     = int(request.GET.get('page', 1))
             products = Product.objects.filter(
                 sub_category__name = sub_category, 
                 sub_category__main_category__menu__name=menu
             ).prefetch_related('productcolorimages__image', 'reviews').annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
 
+            page_count = 20
+            end_page   = page * page_count
+            start_page = end_page - page_count
+            
             product_list = [{
-                    'id'               : product.id,
-                    'name'             : product.name,
-                    'price'            : product.price,
-                    'discount_rate'    : product.discount_rate,
-                    'review_score_avg' : product.score_avg,
-                    'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
-                    'color_count'      : product.color_count,
-            } for product in products]
+                'id'               : product.id,
+                'name'             : product.name,
+                'price'            : product.price,
+                'discount_rate'    : product.discount_rate,
+                'review_score_avg' : product.score_avg,
+                'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
+                'color_count'      : product.color_count,
+            } for product in products[start_page:end_page]]
 
             return JsonResponse({
                 'products_cnt' : products.count(),
