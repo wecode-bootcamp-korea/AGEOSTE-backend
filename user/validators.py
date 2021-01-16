@@ -25,7 +25,7 @@ def validate_phone_number(value):
     if not regex.match(value):
         return False
 
-    if len(value) > 11 :
+    if len(value) > 11:
         return False
 
     return True
