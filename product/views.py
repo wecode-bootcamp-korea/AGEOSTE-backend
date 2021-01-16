@@ -15,8 +15,11 @@ class ProductListView(View):
                 menu__name = menu
             ).filter(
                 **{
-                    'productcolorimages__color__name__in' if key == 'color' else key + '__name__in' : request.GET.getlist(key)
-                    for key in request.GET 
+                    (
+                        'productcolorimages__color__name__in' if key == 'color' else key + '__name__in'
+                    ) : (
+                        request.GET.getlist(key)
+                    ) for key in request.GET 
                     if key in ['colors','sizes','hashtags']
                 }
             ).prefetch_related('productcolorimages__image', 'reviews'
@@ -38,8 +41,8 @@ class ProductListView(View):
             } for product in products[start_page:end_page]]
 
             return JsonResponse({
-                'products_cnt' : products.count(),
-                'products'     : product_list},
+                '상품 총 수량' : products.count(),
+                '상품 리스트'  : product_list},
                 status = 200
             )
         except Exception as e:
@@ -53,10 +56,12 @@ class ProductDetailView(View):
             review_score_avg = product.reviews.aggregate(review_score_avg = Avg('score'))
 
             color_images = [{
-                'color_name' : color_image.color.name,
-                'image_url'  : color_image.image.image_url
-            } for color_image in product.productcolorimages.select_related('color','image')]
-
+                'color_name' : color_name['color__name'],
+                'img' : [
+                    color_image.image.image_url 
+                for color_image in product.productcolorimages.filter(color__name=color_name['color__name']).select_related('image')
+            ]} for color_name in product.productcolorimages.values('color__name').distinct()]
+            
             review = [{
                 "review"      : review.id,
                 'user_name'   : review.user.name,
@@ -79,7 +84,7 @@ class ProductDetailView(View):
                 "review"           : review,
             }
             
-            return JsonResponse({'product' : product_info},status = 200)
+            return JsonResponse({'상품 정보' : product_info},status = 200)
         except Product.DoesNotExist():
             return JsonResponse({'MESSAGE' : "해당 제품이 존재하지 않습니다."}, status=401)
         except Exception as e:
