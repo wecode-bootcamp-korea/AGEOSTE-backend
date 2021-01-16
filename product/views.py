@@ -106,9 +106,9 @@ class ReviewView(View):
             data   = json.loads(request.body)
             review = Review.objects.get(user = request.user, id = review_id)
 
-            review.score       = data('score', None)
-            review.description = data('description', None)
-            review.image_url   = data('image_url', None)
+            review.score       = data('score', review.score)
+            review.description = data('description', review.description)
+            review.image_url   = data('image_url', review.image_url)
             review.save()
 
             return JsonResponse({'MESSAGE':'MODIFY REVIEW !!'}, status=200) 
