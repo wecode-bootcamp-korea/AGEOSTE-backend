@@ -104,4 +104,11 @@ class Review(models.Model):
     class Meta:
         db_table = "reviews"
 
-s
+
+class ReviewReply(models.Model):
+    user    = models.ForeignKey('user.User', on_delete = models.CASCADE)
+    review  = models.ForeignKey('Review', on_delete = models.CASCADE)
+    comment = models.CharField(max_length = 500)
+
+    class Meta:
+        db_table = 'review_replies'
