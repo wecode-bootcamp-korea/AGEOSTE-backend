@@ -83,7 +83,9 @@ class ProductSearchView(View):
 
             products = Product.objects.filter(
                 name__icontains=word
-            ).prefetch_related('productcolorimages__image', 'reviews').annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
+            ).prefetch_related(
+                'productcolorimages__image', 'reviews'
+            ).annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
 
             page_count = 20
             end_page   = page * page_count
@@ -100,8 +102,8 @@ class ProductSearchView(View):
             } for product in products[start_page:end_page]]
 
             return JsonResponse({
-                'products_cnt' : products.count(),
-                'products'     : product_list},
+                '상품 총 수량' : products.count(),
+                '상품 리스트'  : product_list},
                 status = 200
             )
 
