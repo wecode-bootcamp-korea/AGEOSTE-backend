@@ -58,6 +58,7 @@ class ProductDetailView(View):
             } for color_image in product.productcolorimages.select_related('color','image')]
 
             review = [{
+                "review"      : review.id,
                 'user_name'   : review.user.name,
                 'image_url'   : review.image_url, 
                 'score'       : review.score,
