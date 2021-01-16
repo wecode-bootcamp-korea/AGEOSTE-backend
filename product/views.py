@@ -4,12 +4,14 @@ from django.views     import View
 from django.http      import JsonResponse
 from django.db.models import Count, Avg
 
-from .models          import Product, Review
-from user.models      import check_user
+from .models          import Product, Review, Reply
+from user.utils       import check_user
 
 class ProductListView(View):
     def get(self, request, menu, sub_category):
         try:
+            print("!@@@")
+
             page     = int(request.GET.get('page', 1))
             products = Product.objects.filter(
                 sub_category__name = sub_category, 
@@ -42,6 +44,8 @@ class ProductListView(View):
 class ProductDetailView(View):
     def get(self, request, product_id):
         try:
+            print("@@@@@")
+            
             product          = Product.objects.get(id=product_id)
             review_score_avg = product.reviews.aggregate(review_score_avg = Avg('score'))
 
@@ -81,13 +85,13 @@ class ProductDetailView(View):
 
 class ReviewView(View):
     @check_user
-    def post(self, request):
+    def post(self, request, product_id):
         try:
             data = json.loads(request.body)
 
-            Review.create(
+            Review.objects.create(
                 user        = request.user,
-                product     = Product.objects.get(id=data['product_id']),
+                product     = Product.objects.get(id=product_id),
                 score       = data['score'],
                 description = data['description'],
                 image_url   = data.get('image_url', None),
@@ -101,29 +105,85 @@ class ReviewView(View):
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
 
     @check_user
-    def put(self, request, review_id):
+    def put(self, request, product_id, review_id):
         try:
             data   = json.loads(request.body)
             review = Review.objects.get(user = request.user, id = review_id)
 
-            review.score       = data('score', review.score)
-            review.description = data('description', review.description)
-            review.image_url   = data('image_url', review.image_url)
+            review.score       = data.get('score', review.score)
+            review.description = data.get('description', review.description)
+            review.image_url   = data.get('image_url', review.image_url)
             review.save()
 
-            return JsonResponse({'MESSAGE':'MODIFY REVIEW !!'}, status=200) 
-            
-        except KeyError:
-            return JsonResponse({'MESSAGE':"KEY_ERROR"}, status = 400)
+            return JsonResponse({'MESSAGE':'MODIFY REVIEW'}, status=200) 
 
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
 
     @check_user
-    def delete(self, request, review_id):
+    def delete(self, request, product_id, review_id):
         try:
             Review.objects.get(id=review_id, user=request.user).delete()
             return JsonResponse({'MESSAGE':'Review was deleted'}, status=200) 
 
         except Review.DoesNotExist():
             return JsonResponse({'MESSAGE':"리뷰가 존재하지 않습니다."}, status = 400)
+
+class ReplyView(View):
+    def get(self, request, product_id, review_id, reply_id):
+        try:
+            replies = Reply.objects.filter(review_id = review_id).select_related('user')
+
+            result = [{
+                'user_name' : reply.user.name,
+                'comment'   : reply.comment, 
+            }for reply in replies]
+
+            return JsonResponse({'Reply': result}, status = 200)
+
+        except Exception as e:
+            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+
+    @check_user
+    def post(self, request, product_id, review_id):
+        try:
+            data = json.loads(request.body)
+
+            Reply.objects.create(
+                user     = request.user,
+                review   = Review.objects.get(id = review_id),
+                comment  = data['comment']
+            )
+            return JsonResponse({"MESSAGE": "SUCCESS"}, status = 200)
+
+        except KeyError:
+            return JsonResponse({"MESSAGE": "KEY_ERROR"}, status = 400)
+
+        except Exception as e:
+            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+
+    @check_user
+    def put(self, request, product_id, review_id, reply_id):
+        try:
+            data  = json.loads(request.body)
+            reply = Reply.objects.get(user = request.user, id = reply_id)
+
+            reply.comment = data.get('comment', reply.comment)
+            reply.save()
+
+            return JsonResponse({"MESSAGE": "SUCCESS"}, status = 200)
+
+        except Exception as e:
+            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+
+        except Reply.DoesNotExist():
+            return JsonResponse({'MESSAGE':"댓글이 존재하지 않습니다."}, status = 400)
+
+    @check_user
+    def delete(self, request, product_id, review_id, reply_id):
+        try:
+            Reply.objects.get(user = request.user, id = reply_id).delete()
+            return JsonResponse({"MESSAGE": "Reply was deleted"}, status = 200)
+
+        except Reply.DoesNotExist():
+            return JsonResponse({'MESSAGE':"댓글이 존재하지 않습니다."}, status = 400)
