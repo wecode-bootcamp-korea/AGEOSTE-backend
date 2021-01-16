@@ -17,9 +17,11 @@ class ProductListView(View):
                 **{
                     'productcolorimages__color__name__in' if key == 'color' else key + '__name__in' : request.GET.getlist(key)
                     for key in request.GET 
-                    if key in ['color','size','hashtag']
+                    if key in ['colors','sizes','hashtags']
                 }
-            ).prefetch_related('productcolorimages__image', 'reviews').annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)).order_by(order)
+            ).prefetch_related('productcolorimages__image', 'reviews'
+            ).annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True)
+            ).order_by(order)
 
             page_count = 20
             end_page   = page * page_count
