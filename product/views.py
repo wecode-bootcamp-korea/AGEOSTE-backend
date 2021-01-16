@@ -52,7 +52,7 @@ class ProductCategoryView(View):
                     'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
                     'color_count'      : product.color_count,
                 } for product in subcategory.products.prefetch_related('productcolorimages__image', 'reviews').
-                annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True))]
+                annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True))][:4]
             } for subcategory in subcategories]
 
             return JsonResponse({
