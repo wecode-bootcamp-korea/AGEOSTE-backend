@@ -10,8 +10,6 @@ from user.utils       import check_user
 class ProductListView(View):
     def get(self, request, menu, sub_category):
         try:
-            print("!@@@")
-
             page     = int(request.GET.get('page', 1))
             products = Product.objects.filter(
                 sub_category__name = sub_category, 
@@ -44,8 +42,6 @@ class ProductListView(View):
 class ProductDetailView(View):
     def get(self, request, product_id):
         try:
-            print("@@@@@")
-            
             product          = Product.objects.get(id=product_id)
             review_score_avg = product.reviews.aggregate(review_score_avg = Avg('score'))
 
