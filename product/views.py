@@ -51,12 +51,13 @@ class ProductCategoryView(View):
                     'review_score_avg' : product.score_avg,
                     'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
                     'color_count'      : product.color_count,
-                } for product in subcategory.products.prefetch_related('productcolorimages__image', 'reviews').
-                annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True))][:4]
+                } for product in subcategory.products.prefetch_related(
+                    'productcolorimages__image', 'reviews'
+                ).annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True))][:4]
             } for subcategory in subcategories]
 
             return JsonResponse({
-                'subcategory_items' : subcategory_items},
+                '서브카테고리 리스트' : subcategory_items},
                 status = 200
             )
         except Exception as e:
