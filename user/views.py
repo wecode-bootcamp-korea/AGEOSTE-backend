@@ -122,17 +122,17 @@ class AccountView(View):
                 'work_day'     : user.favorite_shop.work_day
             }
 
-        return JsonResponse({"accounts" : accounts}, status=200)
+        return JsonResponse({"accounts": accounts}, status=200)
 
 
     @check_user
     def put(self, request):
-        data = json.loads(request.body)
-        user = request.user
-        changed_pw = data.get('password')
-        existed_pw = user.password
-        existed_shop = user.favorite_shop
-        changed_shop = data.get('favorite_shop')
+        data            = json.loads(request.body)
+        user            = request.user
+        changed_pw      = data.get('password')
+        existed_pw      = user.password
+        existed_shop    = user.favorite_shop
+        changed_shop    = data.get('favorite_shop')
         changed_address = data.get('address')
 
         if changed_pw and not validate_password(changed_pw):
