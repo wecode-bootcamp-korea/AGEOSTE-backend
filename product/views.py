@@ -2,7 +2,7 @@ from django.views     import View
 from django.http      import JsonResponse
 from django.db.models import Count, Avg
 
-from .models          import Product
+from .models          import Product, ProductColorImage
 
 class ProductListView(View):
     def get(self, request, menu, sub_category):
@@ -58,15 +58,16 @@ class ProductListView(View):
 class ProductDetailView(View):
     def get(self, request, product_id):
         try:
-            product          = Product.objects.get(id=product_id)
-            review_score_avg = product.reviews.aggregate(review_score_avg = Avg('score'))
+            product            = Product.objects.get(id=product_id)
+            review_score_avg   = product.reviews.aggregate(review_score_avg = Avg('score'))
+            productcolorimages = ProductColorImage.objects.filter(product=product)
 
             color_images = [{
                 'color_name' : color_name['color__name'],
                 'img' : [
                     color_image.image.image_url 
-                for color_image in product.productcolorimages.filter(color__name=color_name['color__name']).select_related('image')
-            ]} for color_name in product.productcolorimages.values('color__name').distinct()]
+                for color_image in productcolorimages.filter(color__name=color_name['color__name']).select_related('image')
+            ]} for color_name in productcolorimages.values('color__name').distinct()]
             
             review = [{
                 "review"      : review.id,
