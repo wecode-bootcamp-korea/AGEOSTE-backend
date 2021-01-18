@@ -216,4 +216,33 @@ class ActivateView(View):
             return JsonResponse({"error": "KEY_ERROR"}, status=400)
 
 
+class KakaoSignInView(View):
+    def post(self, request):
+        try:
+            access_token = request.headers.get('Authorization')
+            kakao_data = request.get("https://kapi.kakao.com/v2/user/me",
+                                     headers={"Authorization": f"Bearer {access_token}"}).json()
 
+            kakao_id = kakao_data['id']
+            kakao_name = kakao_data['kakao_account']['profile']['nickname']
+            kakao_email = f'{kakao_name}@{kakao_id}.{kakao_id}'
+
+            if User.objects.filter(email=kakao_id).exists():
+                user = User.objects.get(email=kakao_email)
+                token = jwt.encode({"user":user.id}, SECRET, algorithm='HS256')
+                return JsonResponse({"token": token}, status=200)
+
+            else:
+                data = json.loads(request.body)
+                User.objects.create(
+                    email = kakao_email,
+                    name = kakao_name
+                )
+
+                user = User.objects.get(email = kakao_email)
+                token = jwt.encode({"user":user.id}, SECRET, algorithm='HS256')
+
+                return JsonResponse({"token": token}, status=200)
+
+        except KeyError:
+            return JsonResponse({"error": "KEY_ERROR"})
