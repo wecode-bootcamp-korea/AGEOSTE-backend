@@ -14,7 +14,7 @@ class ProductListView(View):
             colors       = request.GET.getlist('colors', None)
             sizes        = request.GET.getlist('sizes', None)
             hashtags     = request.GET.getlist('hashtags', None)
-            order        = request.GET.get('order', 'id') # price, -price, score_avg, ?
+            order        = request.GET.get('order', 'id') # price, -price, score_avg, name, ?
             word         = request.GET.get('word', None)
 
             filter_set = {}
