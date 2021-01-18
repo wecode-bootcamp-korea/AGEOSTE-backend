@@ -146,16 +146,16 @@ class AccountView(View):
         changed_address = data.get('address')
 
         if changed_pw and not validate_password(changed_pw):
-            return JsonResponse({"error" : "양식에 맞지 않는 비밀번호 입니다."}, status=400)
+            return JsonResponse({"error" : "INVALID_PASSWORD."}, status=400)
 
         if changed_pw and bcrypt.checkpw(changed_pw.encode('utf-8'), existed_pw.encode('utf-8')):
-            return JsonResponse({"error" : "기존의 비밀번호와 같은 비밀번호로 변경할 수 없습니다."})
+            return JsonResponse({"error" : "EXIST_PASSWORD"}, status=400)
 
         if changed_pw:
             encoded_pw = changed_pw.encode('utf-8')
             hashed_pw  = bcrypt.hashpw(encoded_pw, bcrypt.gensalt()).decode('utf-8')
             User.objects.filter(id = user.id).update(password = hashed_pw)
-            return JsonResponse({"message" : "비밀번호가 성공적으로 변경되었습니다."}, status=200)
+            return JsonResponse({"message" : "SUCCESS"}, status=200)
 
         if changed_shop:
             User.objects.filter(id = user.id).update(favorite_shop = changed_shop)
@@ -186,7 +186,7 @@ class EmailAuthView(View):
             email      = EmailMessage(mail_title, message_data, to=[mail_to])
             email.send()
 
-            return JsonResponse({"message": "이메일이 성공적으로 발송되었습니다."}, status=200)
+            return JsonResponse({"message": "SUCCESS"}, status=200)
 
         except KeyError:
             return JsonResponse({"error": "KEY_ERROR"}, status=400)
