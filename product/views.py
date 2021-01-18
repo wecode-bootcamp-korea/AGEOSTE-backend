@@ -82,9 +82,10 @@ class ProductSearchView(View):
             word     = request.GET.get('word', None)
             hashtags = request.GET.getlist('hashtags', None)
 
-            filter_set = {
-                'name__icontains'    : word,
-            }
+            filter_set = {}
+
+            if word:
+                filter_set['name__icontains'] = word
 
             if hashtags:
                 filter_set['hashtags__name__in'] = hashtags
