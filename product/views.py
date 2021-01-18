@@ -4,17 +4,36 @@ from django.views     import View
 from django.http      import JsonResponse
 from django.db.models import Count, Avg
 
-from .models          import Product, Review, Reply
+from .models          import Product, Review, Reply, ProductColorImage, SubCategory
 from user.utils       import check_user
 
 class ProductListView(View):
     def get(self, request, menu, sub_category):
         try:
             page     = int(request.GET.get('page', 1))
-            products = Product.objects.filter(
-                sub_category__name = sub_category, 
-                menu__name         = menu
-            ).prefetch_related('productcolorimages__image', 'reviews').annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
+            order    = request.GET.get('order', 'id') # price, -price, score_avg
+            colors   = request.GET.getlist('colors')
+            sizes    = request.GET.getlist('sizes')
+            hashtags = request.GET.getlist('hashtags')
+
+            filter_set = {
+                "sub_category__name" : sub_category,
+                "menu__name"         : menu,
+            } 
+
+            if colors:
+                filter_set['productcolorimages__color__name__in'] = colors
+
+            if sizes:
+                filter_set['sizes__name__in'] = sizes
+
+            if hashtags:
+                filter_set['hashtags__name__in'] = hashtags
+            
+            products = Product.objects.filter(**filter_set
+            ).prefetch_related('productcolorimages__image', 'reviews'
+            ).annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True)
+            ).order_by(order)
 
             PAGE_COUNT = 20
             end_page   = page * PAGE_COUNT
@@ -70,15 +89,19 @@ class ProductCategoryView(View):
 class ProductDetailView(View):
     def get(self, request, product_id):
         try:
-            product          = Product.objects.get(id=product_id)
-            review_score_avg = product.reviews.aggregate(review_score_avg = Avg('score'))
+            product            = Product.objects.get(id=product_id)
+            review_score_avg   = product.reviews.aggregate(review_score_avg = Avg('score'))
+            productcolorimages = ProductColorImage.objects.filter(product=product)
 
             color_images = [{
-                'color_name' : color_image.color.name,
-                'image_url'  : color_image.image.image_url
-            } for color_image in product.productcolorimages.select_related('color','image')]
-
+                'color_name' : color_name['color__name'],
+                'img' : [
+                    color_image.image.image_url 
+                for color_image in productcolorimages.filter(color__name=color_name['color__name']).select_related('image')
+            ]} for color_name in productcolorimages.values('color__name').distinct()]
+            
             review = [{
+                "review"      : review.id,
                 'user_name'   : review.user.name,
                 'image_url'   : review.image_url, 
                 'score'       : review.score,

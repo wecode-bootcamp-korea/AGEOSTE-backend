@@ -88,7 +88,7 @@ class ProductHashtag(models.Model):
 class ProductColorImage(models.Model):
     product = models.ForeignKey('Product', related_name="productcolorimages", on_delete=models.CASCADE)
     color   = models.ForeignKey('Color', on_delete=models.CASCADE)
-    image   = models.ForeignKey('Image', null= True, on_delete=models.CASCADE)
+    image   = models.ForeignKey('Image', related_name="productcolorimages", null= True, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "products_colors_images"
