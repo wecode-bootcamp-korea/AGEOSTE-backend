@@ -19,13 +19,13 @@ class ProductListView(View):
             }
 
             if colors:
-                filter_set['productcolorimages__color__name__in'] = request.GET.getlist('colors')
+                filter_set['productcolorimages__color__name__in'] = colors
 
             if sizes:
-                filter_set['sizes__name__in'] = request.GET.getlist('sizes')
+                filter_set['sizes__name__in'] = sizes
 
             if hashtags:
-                filter_set['hashtags__name__in'] = request.GET.getlist('hashtags')
+                filter_set['hashtags__name__in'] = hashtags
             
             products = Product.objects.filter(**filter_set
             ).prefetch_related('productcolorimages__image', 'reviews'
