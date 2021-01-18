@@ -7,21 +7,27 @@ from .models          import Product
 class ProductListView(View):
     def get(self, request, menu, sub_category):
         try:
-            page  = int(request.GET.get('page', 1))
-            order = request.GET.get('order', 'id') # price, -price, score_avg
+            page     = int(request.GET.get('page', 1))
+            order    = request.GET.get('order', 'id') # price, -price, score_avg
+            colors   = request.GET.getlist('colors')
+            sizes    = request.GET.getlist('sizes')
+            hashtags = request.GET.getlist('hashtags')
+
+            filter_set = {
+                "sub_category__name" : sub_category,
+                "menu__name"         : menu,
+            }
+
+            if colors:
+                filter_set['productcolorimages__color__name__in'] = request.GET.getlist('colors')
+
+            if sizes:
+                filter_set['sizes__name__in'] = request.GET.getlist('sizes')
+
+            if hashtags:
+                filter_set['hashtags__name__in'] = request.GET.getlist('hashtags')
             
-            products = Product.objects.filter(
-                sub_category__name = sub_category, 
-                menu__name = menu
-            ).filter(
-                **{
-                    (
-                        'productcolorimages__color__name__in' if key == 'color' else key + '__name__in'
-                    ) : (
-                        request.GET.getlist(key)
-                    ) for key in request.GET 
-                    if key in ['colors','sizes','hashtags']
-                }
+            products = Product.objects.filter(**filter_set
             ).prefetch_related('productcolorimages__image', 'reviews'
             ).annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True)
             ).order_by(order)
@@ -41,8 +47,8 @@ class ProductListView(View):
             } for product in products[start_page:end_page]]
 
             return JsonResponse({
-                '상품 총 수량' : products.count(),
-                '상품 리스트'  : product_list},
+                'PRODUCT_COUNT' : products.count(),
+                'PRODUCT_LIST'  : product_list},
                 status = 200
             )
         except Exception as e:
@@ -84,7 +90,7 @@ class ProductDetailView(View):
                 "review"           : review,
             }
             
-            return JsonResponse({'상품 정보' : product_info},status = 200)
+            return JsonResponse({'PRODUCT_INFO' : product_info},status = 200)
         except Product.DoesNotExist():
             return JsonResponse({'MESSAGE' : "해당 제품이 존재하지 않습니다."}, status=401)
         except Exception as e:
