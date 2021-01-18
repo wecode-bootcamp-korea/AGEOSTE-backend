@@ -77,7 +77,7 @@ class ProductDetailView(View):
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
 
         except Product.DoesNotExist():
-            return JsonResponse({'MESSAGE' : "해당 제품이 존재하지 않습니다."}, status=401)
+            return JsonResponse({'MESSAGE' : "Product does not exist"}, status=401)
 
 
 class ReviewView(View):
@@ -93,7 +93,7 @@ class ReviewView(View):
                 description = data['description'],
                 image_url   = data.get('image_url', None),
             )
-            return JsonResponse({'MESSAGE':'리뷰를 작성하였습니다.'}, status=200)
+            return JsonResponse({'MESSAGE':'Create review'}, status=200)
 
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
@@ -113,7 +113,7 @@ class ReviewView(View):
             review.image_url   = data.get('image_url', review.image_url)
             review.save()
 
-            return JsonResponse({'MESSAGE':'리뷰를 수정하였습니다.'}, status=200) 
+            return JsonResponse({'MESSAGE':'Edit review'}, status=200) 
 
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
@@ -122,10 +122,10 @@ class ReviewView(View):
     def delete(self, request, product_id, review_id):
         try:
             Review.objects.get(id=review_id, user=request.user).delete()
-            return JsonResponse({'MESSAGE':'리뷰를 삭제하였습니다.'}, status=200) 
+            return JsonResponse({'MESSAGE':'Delete review'}, status=200) 
 
         except Review.DoesNotExist():
-            return JsonResponse({'MESSAGE':"리뷰가 존재하지 않습니다."}, status = 400)
+            return JsonResponse({'MESSAGE':"Review does not exist"}, status = 400)
 
 class ReplyView(View):
     def get(self, request, product_id, review_id, reply_id):
@@ -137,7 +137,7 @@ class ReplyView(View):
                 'comment'   : reply.comment, 
             }for reply in replies]
 
-            return JsonResponse({'댓글 리스트': reply_list}, status = 200)
+            return JsonResponse({'REPLY_LIST': reply_list}, status = 200)
 
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
@@ -152,7 +152,7 @@ class ReplyView(View):
                 review   = Review.objects.get(id = review_id),
                 comment  = data['comment']
             )
-            return JsonResponse({"MESSAGE": "댓글을 작성하였습니다."}, status = 200)
+            return JsonResponse({"MESSAGE": "Create reply"}, status = 200)
 
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
@@ -170,19 +170,19 @@ class ReplyView(View):
             reply.comment = data.get('comment', reply.comment)
             reply.save()
 
-            return JsonResponse({"MESSAGE": "댓글을 수정하였습니다."}, status = 200)
+            return JsonResponse({"MESSAGE": "Edit reply"}, status = 200)
 
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
 
         except Reply.DoesNotExist():
-            return JsonResponse({'MESSAGE':"댓글이 존재하지 않습니다."}, status = 400)
+            return JsonResponse({'MESSAGE':"Reply does not exist"}, status = 400)
 
     @check_user
     def delete(self, request, product_id, review_id, reply_id):
         try:
             Reply.objects.get(user = request.user, id = reply_id).delete()
-            return JsonResponse({"MESSAGE": "댓글을 삭제하였습니다."}, status = 200)
+            return JsonResponse({"MESSAGE": "Delete reply"}, status = 200)
 
         except Reply.DoesNotExist():
-            return JsonResponse({'MESSAGE':"댓글이 존재하지 않습니다."}, status = 400)
+            return JsonResponse({'MESSAGE':"Reply does not exist"}, status = 400)
