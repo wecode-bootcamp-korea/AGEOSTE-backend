@@ -28,7 +28,11 @@ class SubCategory(models.Model):
 
 class Product(models.Model):
     name          = models.CharField(max_length=45)
+<<<<<<< HEAD
     sub_category  = models.ForeignKey('SubCategory', on_delete=models.CASCADE)
+=======
+    sub_category  = models.ForeignKey('SubCategory', related_name='products', on_delete=models.CASCADE)
+>>>>>>> main
     menu          = models.ForeignKey('Menu', on_delete=models.CASCADE)
     code          = models.CharField(max_length=45)
     price         = models.DecimalField(max_digits = 20, decimal_places = 2)

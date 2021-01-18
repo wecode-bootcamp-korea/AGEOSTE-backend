@@ -50,5 +50,3 @@ class Membership(models.Model):
 
     class Meta:
         db_table = 'memberships'
-
-
