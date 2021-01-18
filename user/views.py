@@ -3,17 +3,23 @@ import re
 import bcrypt
 import jwt
 
-from django.http            import JsonResponse, HttpResponse
-from django.views           import View
-from django.core.exceptions import ValidationError
+from django.http                    import JsonResponse, HttpResponse
+from django.views                   import View
+from django.core.exceptions         import ValidationError
+from django.shortcuts               import redirect
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http              import urlsafe_base64_encode, urlsafe_base64_decode
+from django.core.mail               import EmailMessage
+from django.utils.encoding          import force_bytes, force_text
 
 from .models     import User
-from my_settings import SECRET
-from .utils      import check_user
+from .tokens     import account_activation_token
+from my_settings import SECRET, EMAIL
+from .utils      import check_user, active_message
 from .validators import validate_email, validate_password, validate_phone_number
 
 
-class SignupView(View):
+class SignUpView(View):
     def post(self, request):
         try:
             data          = json.loads(request.body)
@@ -23,23 +29,27 @@ class SignupView(View):
             phone_number  = data['phone_number']
             date_of_birth = data.get('date_of_birth')
 
+            if not name:
+                return JsonResponse({"error": "KEY_ERROR"})
+
             if not validate_email(email):
-                return JsonResponse({"error" : "양식에 맞지 않는 이메일입니다."}, status=400)
+                return JsonResponse({"error": "INVALID_EMAIL"}, status=400)
 
             if not validate_password(password):
-                return JsonResponse({"error": "비밀번호는 문자, 숫자, 특수문자가 포함되어야합니다."}, status=400)
+                return JsonResponse({"error": "INVALID_PASSWORD"}, status=400)
 
             if not validate_phone_number(phone_number):
-                return JsonResponse({"error": "양식에 맞지 않는 휴대폰번호입니다."}, status=400)
+                return JsonResponse({"error": "INVALID_PHONE_NUMBER"}, status=400)
 
             if User.objects.filter(email=email).exists():
-                return JsonResponse({"error": "이 주소의 아이디가 이미 존재합니다."}, status=400)
+                return JsonResponse({"error": "EXIST_EMAIL"}, status=400)
 
             if User.objects.filter(phone_number=phone_number).exists():
-                return JsonResponse({"error": "이미 존재하는 휴대폰 번호입니다."}, status=400)
+                return JsonResponse({"error": "EXIST_PHONE_NUMBER"}, status=400)
 
-            if date_of_birth and len(date_of_birth) != 8:
-                return JsonResponse({"error": "생년월일은 8자리의 숫자만 입력 가능합니다."}, status=400)
+            if date_of_birth:
+                if len(date_of_birth) != 8:
+                    return JsonResponse({"error": "INVALID_BIRTH"}, status=400)
                 date_of_birth = str(date_of_birth)
                 date_of_birth = f'{date_of_birth[:4]}-{date_of_birth[4:6]}-{date_of_birth[6:]}'
 
@@ -68,7 +78,7 @@ class SignupView(View):
             return JsonResponse({"error": "JSON_DECODE_ERROR"}, status=400)
 
 
-class SigninView(View):
+class SignInView(View):
     def post(self, request):
         try:
             data     = json.loads(request.body)
@@ -81,14 +91,14 @@ class SigninView(View):
             if bcrypt.checkpw(password.encode('utf-8'), user_password.encode('utf-8')):
                 payload = {"user_id": user.id}
                 token   = jwt.encode(payload, SECRET, algorithm='HS256')
-                return JsonResponse({"token": token}, status=200)
-            return JsonResponse({"error": "아이디 또는 비밀번호를 다시 확인하세요."}, status=401)
+                return JsonResponse({"token": token, "message": "SUCCESS"}, status=200)
+            return JsonResponse({"error": "INVALID_PASSWORD"}, status=401)
 
         except KeyError:
             return JsonResponse({"error": "KEY_ERROR"}, status=400)
 
         except User.DoesNotExist:
-            return JsonResponse({"error": "존재하지 않는 아이디입니다."}, status=401)
+            return JsonResponse({"error": "INVALID_EMAIL"}, status=401)
 
 
 class AccountView(View):
@@ -154,3 +164,56 @@ class AccountView(View):
         if change_address:
             User.objects.filter(id = user.id).update(address = changed_address)
             return HttpResponse(status=200)
+
+
+class EmailAuthView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        try:
+            email   = data['email']
+            user    = User.objects.get(email=email)
+            user_id = user.id
+
+            current_site = get_current_site(request)
+            domain       = current_site.domain
+
+            uidb64       = urlsafe_base64_encode(force_bytes(user_id))
+            token        = account_activation_token.make_token(user)
+            message_data = active_message(domain, uidb64, token)
+
+            mail_title = "이메일 인증을 완료해주세요"
+            mail_to    = data['email']
+            email      = EmailMessage(mail_title, message_data, to=[mail_to])
+            email.send()
+
+            return JsonResponse({"message": "이메일이 성공적으로 발송되었습니다."}, status=200)
+
+        except KeyError:
+            return JsonResponse({"error": "KEY_ERROR"}, status=400)
+
+        except TypeError:
+            return JsonResponse({"error": "TYPE_ERROR"}, status=400)
+
+        except ValidationError:
+            return JsonResponse({"error": "VALIDATION_ERROR"})
+
+
+class ActivateView(View):
+    def get(self, request, uidb64, token):
+        try:
+            uid  = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+
+            if account_activation_token.check_token(user, token):
+                User.objects.filter(pk=uid).update(is_active=True, membership_id=2)
+                return redirect(EMAIL['REDIRECT_PAGE'])
+            return JsonResponse({"error": "AUTH_FAIL"}, status=400)
+
+        except ValidationError:
+            return JsonResponse({"error": "TYPE_ERROR"}, status=400)
+
+        except KeyError:
+            return JsonResponse({"error": "KEY_ERROR"}, status=400)
+
+
+
