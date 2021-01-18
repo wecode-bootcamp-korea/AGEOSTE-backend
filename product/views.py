@@ -93,6 +93,6 @@ class ProductDetailView(View):
             
             return JsonResponse({'PRODUCT_INFO' : product_info},status = 200)
         except Product.DoesNotExist():
-            return JsonResponse({'MESSAGE' : "해당 제품이 존재하지 않습니다."}, status=401)
+            return JsonResponse({'MESSAGE' : "Product does not exist"}, status=401)
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
