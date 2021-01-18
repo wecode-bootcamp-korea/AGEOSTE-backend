@@ -81,8 +81,12 @@ class ProductSearchView(View):
             page = int(request.GET.get('page', 1))
             word = request.GET.get('word', None)
 
-            products = Product.objects.filter(
-                name__icontains=word
+            filter_set = {
+                'name__icontains'    : word,
+                'hashtags__name__in' : request.GET.getlist('hashtags', None)
+            }
+
+            products = Product.objects.filter(**filter_set
             ).prefetch_related(
                 'productcolorimages__image', 'reviews'
             ).annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
