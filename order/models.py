@@ -23,7 +23,7 @@ class CartItem(models.Model):
     size      = models.ForeignKey('product.Size', on_delete=models.CASCADE)
     color     = models.ForeignKey('product.Color',on_delete=models.CASCADE)
     order     = models.ForeignKey('Order', on_delete=models.CASCADE)
-    thumbnail = models.ForeignKey('Image', on_delete.models.CASCADE)
+    thumbnail = models.ForeignKey('product.Image', on_delete=models.CASCADE)
     count     = models.IntegerField(default=1)
 
     class Meta:
