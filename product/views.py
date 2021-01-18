@@ -78,13 +78,16 @@ class ProductDetailView(View):
 class ProductSearchView(View):
     def get(self, request):
         try:
-            page = int(request.GET.get('page', 1))
-            word = request.GET.get('word', None)
+            page     = int(request.GET.get('page', 1))
+            word     = request.GET.get('word', None)
+            hashtags = request.GET.getlist('hashtags', None)
 
             filter_set = {
                 'name__icontains'    : word,
-                'hashtags__name__in' : request.GET.getlist('hashtags', None)
             }
+
+            if hashtags:
+                filter_set['hashtags__name__in'] = hashtags
 
             products = Product.objects.filter(**filter_set
             ).prefetch_related(
