@@ -13,9 +13,9 @@ class ProductListView(View):
                 sub_category__main_category__menu__name=menu
             ).prefetch_related('productcolorimages__image', 'reviews').annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
 
-            page_count = 20
-            end_page   = page * page_count
-            start_page = end_page - page_count
+            PAGE_COUNT = 20
+            end_page   = page * PAGE_COUNT
+            start_page = end_page - PAGE_COUNT
             
             product_list = [{
                 'id'               : product.id,
@@ -28,8 +28,8 @@ class ProductListView(View):
             } for product in products[start_page:end_page]]
 
             return JsonResponse({
-                'products_cnt' : products.count(),
-                'products'     : product_list},
+                'PRODUCT_COUNT' : products.count(),
+                'PRODUCT_LIST'  : product_list},
                 status = 200
             )
         except Exception as e:
@@ -68,9 +68,9 @@ class ProductDetailView(View):
                 "review"           : review,
             }
             
-            return JsonResponse({'product' : product_info},status = 200)
+            return JsonResponse({'PRODUCT_INFO' : product_info},status = 200)
         except Product.DoesNotExist():
-            return JsonResponse({'MESSAGE' : "해당 제품이 존재하지 않습니다."}, status=401)
+            return JsonResponse({'MESSAGE' : "Product doest not exist"}, status=401)
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
 
@@ -87,9 +87,9 @@ class ProductSearchView(View):
                 'productcolorimages__image', 'reviews'
             ).annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
 
-            page_count = 20
-            end_page   = page * page_count
-            start_page = end_page - page_count
+            PAGE_COUNT = 20
+            end_page   = page * PAGE_COUNT
+            start_page = end_page - PAGE_COUNT
 
             product_list = [{
                 'id'               : product.id,
@@ -102,8 +102,8 @@ class ProductSearchView(View):
             } for product in products[start_page:end_page]]
 
             return JsonResponse({
-                '상품 총 수량' : products.count(),
-                '상품 리스트'  : product_list},
+                'PRODUCT_COUNT' : products.count(),
+                'PRODUCT_LIST'  : product_list},
                 status = 200
             )
 
