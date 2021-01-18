@@ -16,7 +16,7 @@ class ProductListView(View):
             filter_set = {
                 "sub_category__name" : sub_category,
                 "menu__name"         : menu,
-            }
+            } 
 
             if colors:
                 filter_set['productcolorimages__color__name__in'] = colors
