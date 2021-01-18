@@ -28,8 +28,8 @@ class ProductListView(View):
             } for product in products[start_page:end_page]]
 
             return JsonResponse({
-                'products_cnt' : products.count(),
-                'products'     : product_list},
+                'PRODUCT_COUNT : ' : products.count(),
+                'PRODUCTS_LIST : ' : product_list},
                 status = 200
             )
         except Exception as e:
@@ -57,7 +57,7 @@ class ProductCategoryView(View):
             } for subcategory in subcategories]
 
             return JsonResponse({
-                '서브카테고리 리스트' : subcategory_items},
+                'SUB_CATEGORY_LIST' : subcategory_items},
                 status = 200
             )
         except Exception as e:
@@ -96,8 +96,8 @@ class ProductDetailView(View):
                 "review"           : review,
             }
             
-            return JsonResponse({'product' : product_info},status = 200)
+            return JsonResponse({'PRODUCT_INFO' : product_info},status = 200)
         except Product.DoesNotExist():
-            return JsonResponse({'MESSAGE' : "해당 제품이 존재하지 않습니다."}, status=401)
+            return JsonResponse({'MESSAGE' : "Product does not exist"}, status=401)
         except Exception as e:
             return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
