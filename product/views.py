@@ -204,7 +204,7 @@ class ReviewView(View):
             review.image_url   = data.get('image_url', review.image_url)
             review.save()
 
-            return JsonResponse({'MESSAGE':'Edit review'}, status=200) 
+            return JsonResponse({'MESSAGE':'리뷰를 수정하였습니다.'}, status=200) 
 
         except Review.DoesNotExist:
             return JsonResponse({'MESSAGE':"Review does not exist"}, status=400)
@@ -266,7 +266,7 @@ class ReplyView(View):
             reply.comment = data.get('comment', reply.comment)
             reply.save()
 
-            return JsonResponse({"MESSAGE": "Edit reply"}, status=200)
+            return JsonResponse({"MESSAGE": "댓글을 수정하였습니다."}, status=200)
 
         except Reply.DoesNotExist:
             return JsonResponse({'MESSAGE':"Reply does not exist"}, status=400)
