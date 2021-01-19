@@ -52,10 +52,10 @@ class ProductListView(View):
             return JsonResponse({
                 'PRODUCT_COUNT : ' : products.count(),
                 'PRODUCTS_LIST : ' : product_list},
-                status = 200
+                status=200
             )
         except Exception as e:
-            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
 
 class ProductCategoryView(View):
@@ -80,10 +80,10 @@ class ProductCategoryView(View):
 
             return JsonResponse({
                 'SUB_CATEGORY_LIST' : subcategory_items},
-                status = 200
+                status=200
             )
         except Exception as e:
-            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
 
 class ProductDetailView(View):
@@ -124,11 +124,11 @@ class ProductDetailView(View):
             
             return JsonResponse({'product' : product_info},status = 200)
 
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+        except Product.DoesNotExist:
+            return JsonResponse({'MESSAGE' : "Product does not exist"}, status=400)
 
-        except Product.DoesNotExist():
-            return JsonResponse({'MESSAGE' : "Product does not exist"}, status=401)
+        except Exception as e:
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
 class ProductSearchView(View):
     def get(self, request):
@@ -167,8 +167,10 @@ class ProductSearchView(View):
             return JsonResponse({
                 'PRODUCT_COUNT' : products.count(),
                 'PRODUCT_LIST'  : product_list},
-                status = 200
+                status=200
             )
+        except Exception as e:
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
 class ReviewView(View):
     @check_user
@@ -183,14 +185,13 @@ class ReviewView(View):
                 description = data['description'],
                 image_url   = data.get('image_url', None),
             )
-            return JsonResponse({'MESSAGE':'Create review'}, status=200)
-
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+            return JsonResponse({'MESSAGE':'Create review'}, status=201)
 
         except KeyError:
-            return JsonResponse({'MESSAGE':"KEY_ERROR"}, status = 400)
+            return JsonResponse({'MESSAGE':"KEY_ERROR"}, status=400)
 
+        except Exception as e:
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
     @check_user
     def put(self, request, product_id, review_id):
@@ -205,8 +206,11 @@ class ReviewView(View):
 
             return JsonResponse({'MESSAGE':'Edit review'}, status=200) 
 
+        except Review.DoesNotExist:
+            return JsonResponse({'MESSAGE':"Review does not exist"}, status=400)
+
         except Exception as e:
-            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
     @check_user
     def delete(self, request, product_id, review_id):
@@ -214,8 +218,9 @@ class ReviewView(View):
             Review.objects.get(id=review_id, user=request.user).delete()
             return JsonResponse({'MESSAGE':'Delete review'}, status=200) 
 
-        except Review.DoesNotExist():
-            return JsonResponse({'MESSAGE':"Review does not exist"}, status = 400)
+        except Review.DoesNotExist:
+            return JsonResponse({'MESSAGE':"Review does not exist"}, status=400)
+
 
 class ReplyView(View):
     def get(self, request, product_id, review_id, reply_id):
@@ -227,52 +232,56 @@ class ReplyView(View):
                 'comment'   : reply.comment, 
             }for reply in replies]
 
-            return JsonResponse({'REPLY_LIST': reply_list}, status = 200)
+            return JsonResponse({'REPLY_LIST': reply_list}, status=200)
 
         except Exception as e:
-            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
-    @check_user
+    # @check_user
     def post(self, request, product_id, review_id):
         try:
             data = json.loads(request.body)
 
             Reply.objects.create(
-                user     = request.user,
-                review   = Review.objects.get(id = review_id),
-                comment  = data['comment']
+                user      = request.user,
+                review_id = review_id,
+                comment   = data['comment']
             )
-            return JsonResponse({"MESSAGE": "Create reply"}, status = 200)
-
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
+            return JsonResponse({"MESSAGE": "Create reply"}, status=201)
+        
+        except Review.DoesNotExist:
+            return JsonResponse({'MESSAGE':"Review does not exist"}, status=400)
 
         except KeyError:
-            return JsonResponse({"MESSAGE": "KEY_ERROR"}, status = 400)
+            return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=400)
 
+        except Exception as e:
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
     @check_user
     def put(self, request, product_id, review_id, reply_id):
         try:
-            data  = json.loads(request.body)
-            reply = Reply.objects.get(user = request.user, id = reply_id)
-
+            data          = json.loads(request.body)
+            reply         = Reply.objects.get(user = request.user, id = reply_id)
             reply.comment = data.get('comment', reply.comment)
             reply.save()
 
-            return JsonResponse({"MESSAGE": "Edit reply"}, status = 200)
+            return JsonResponse({"MESSAGE": "Edit reply"}, status=200)
+
+        except Reply.DoesNotExist:
+            return JsonResponse({'MESSAGE':"Reply does not exist"}, status=400)
 
         except Exception as e:
-            return JsonResponse({'MESSAGE' : (e.args[0])}, status=400)
-
-        except Reply.DoesNotExist():
-            return JsonResponse({'MESSAGE':"Reply does not exist"}, status = 400)
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
     @check_user
     def delete(self, request, product_id, review_id, reply_id):
         try:
             Reply.objects.get(user = request.user, id = reply_id).delete()
-            return JsonResponse({"MESSAGE": "Delete reply"}, status = 200)
+            return JsonResponse({"MESSAGE": "Delete reply"}, status=200)
 
-        except Reply.DoesNotExist():
-            return JsonResponse({'MESSAGE':"Reply does not exist"}, status = 400)
+        except Reply.DoesNotExist:
+            return JsonResponse({'MESSAGE':"Reply does not exist"}, status=400)
+
+        except Exception as e:
+            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
