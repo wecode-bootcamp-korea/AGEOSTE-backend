@@ -14,7 +14,7 @@ def check_user(func):
             request.user = user
 
         except User.DoesNotExist:
-            return JSonResponse({"message": "존재하지 않는 유저입니다."}, status=401)
+            return JsonResponse({"message": "존재하지 않는 유저입니다."}, status=401)
 
         except jwt.DecodeError:
             return JsonResponse({"message": "잘못된 token 입니다."}, status=401)

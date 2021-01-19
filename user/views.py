@@ -112,7 +112,6 @@ class AccountView(View):
             'name'         : user.name,
             'email'        : user.email,
             'phone_number' : mypage_phone_number,
-            'password'     : '********',
             'date_of_birth': user.date_of_birth,
             'address'      : user.address,
             'membership'   : {
@@ -139,20 +138,19 @@ class AccountView(View):
     def put(self, request):
         data            = json.loads(request.body)
         user            = request.user
-        changed_pw      = data.get('password')
-        existed_pw      = user.password
+        new_pw          = data.get('password')
+        current_pw      = user.password
         existed_shop    = user.favorite_shop
         changed_shop    = data.get('favorite_shop')
         changed_address = data.get('address')
 
-        if changed_pw and not validate_password(changed_pw):
-            return JsonResponse({"error" : "INVALID_PASSWORD."}, status=400)
+        if new_pw:
+            if not validate_password(new_pw):
+                return JsonResponse({"error": "INVALID_PASSWORD"}, status=400)
+            if bcrypt.checkpw(new_pw.encode('utf-8'), current_pw.encode('utf-8')):
+                return JsonResponse({"error": "EXIST_PASSWORD"}, status=400)
 
-        if changed_pw and bcrypt.checkpw(changed_pw.encode('utf-8'), existed_pw.encode('utf-8')):
-            return JsonResponse({"error" : "EXIST_PASSWORD"}, status=400)
-
-        if changed_pw:
-            encoded_pw = changed_pw.encode('utf-8')
+            encoded_pw = new_pw.encode('utf-8')
             hashed_pw  = bcrypt.hashpw(encoded_pw, bcrypt.gensalt()).decode('utf-8')
             User.objects.filter(id = user.id).update(password = hashed_pw)
             return JsonResponse({"message" : "SUCCESS"}, status=200)
@@ -195,7 +193,14 @@ class EmailAuthView(View):
             return JsonResponse({"error": "TYPE_ERROR"}, status=400)
 
         except ValidationError:
-            return JsonResponse({"error": "VALIDATION_ERROR"})
+            return JsonResponse({"error": "VALIDATION_ERROR"}, status=400)
+
+        except UserDoesNotExist:
+            return JsonResponse({"error": "NON_EXIST_USER"}, status=400)
+
+        except MultipleObjectsReturned:
+            return JsonResponse({"error": "MULTIPLE_OBJECTS_ERROR"}, status=400)
+
 
 
 class ActivateView(View):
