@@ -25,7 +25,7 @@ class ProductListView(View):
             filter_set['menu__name'] = menu
 
         if sub_category:
-            filter_set['sub_category__name'] = sub_category 
+            filter_set['sub_category__name'] = sub_category
 
         if colors:
             filter_set['productcolorimages__color__name__in'] = colors
@@ -46,7 +46,7 @@ class ProductListView(View):
 
         end_page   = page * page_count
         start_page = end_page - page_count
-        
+
         product_list = [{
             'id'               : product.id,
             'name'             : product.name,
@@ -99,14 +99,14 @@ class ProductDetailView(View):
             color_images = [{
                 'color_name' : color_name['color__name'],
                 'img' : [
-                    color_image.image.image_url 
+                    color_image.image.image_url
                 for color_image in productcolorimages.filter(color__name=color_name['color__name']).select_related('image')
             ]} for color_name in productcolorimages.values('color__name').distinct()]
-            
+
             review = [{
                 "review"      : review.id,
                 'user_name'   : review.user.name,
-                'image_url'   : review.image_url, 
+                'image_url'   : review.image_url,
                 'score'       : review.score,
                 'description' : review.description,
                 'created_at'  : review.created_at,
@@ -124,7 +124,7 @@ class ProductDetailView(View):
                 "color_images"     : color_images,
                 "review"           : review,
             }
-            
+
             return JsonResponse({'product' : product_info},status = 200)
 
         except Product.DoesNotExist:
@@ -160,7 +160,7 @@ class ReviewView(View):
             review.image_url   = data.get('image_url', review.image_url)
             review.save()
 
-            return JsonResponse({'MESSAGE':'리뷰를 수정하였습니다.'}, status=200) 
+            return JsonResponse({'MESSAGE':'리뷰를 수정하였습니다.'}, status=200)
 
         except Review.DoesNotExist:
             return JsonResponse({'MESSAGE':"Review does not exist"}, status=400)
@@ -169,7 +169,7 @@ class ReviewView(View):
     def delete(self, request, product_id, review_id):
         try:
             Review.objects.get(id=review_id, user=request.user).delete()
-            return JsonResponse({'MESSAGE':'Delete review'}, status=200) 
+            return JsonResponse({'MESSAGE':'Delete review'}, status=200)
 
         except Review.DoesNotExist:
             return JsonResponse({'MESSAGE':"Review does not exist"}, status=400)
@@ -177,15 +177,14 @@ class ReviewView(View):
 
 class ReplyView(View):
     def get(self, request, product_id, review_id, reply_id):
-        try:
-            replies = Reply.objects.filter(review_id = review_id).select_related('user')
+        replies = Reply.objects.filter(review_id = review_id).select_related('user')
 
-            reply_list = [{
-                'user_name' : reply.user.name,
-                'comment'   : reply.comment, 
-            }for reply in replies]
+        reply_list = [{
+            'user_name' : reply.user.name,
+            'comment'   : reply.comment,
+        }for reply in replies]
 
-            return JsonResponse({'REPLY_LIST': reply_list}, status=200)
+        return JsonResponse({'REPLY_LIST': reply_list}, status=200)
 
     @check_user
     def post(self, request, product_id, review_id):
@@ -198,7 +197,7 @@ class ReplyView(View):
                 comment   = data['comment']
             )
             return JsonResponse({"MESSAGE": "Create reply"}, status=201)
-        
+
         except Review.DoesNotExist:
             return JsonResponse({'MESSAGE':"Review does not exist"}, status=400)
 

@@ -32,6 +32,7 @@ class Shop(models.Model):
 class Coupon(models.Model):
     name          = models.CharField(max_length=800)
     discount_rate = models.IntegerField()
+    description   = models.TextField(null=True)
 
     class Meta:
         db_table = 'coupons'

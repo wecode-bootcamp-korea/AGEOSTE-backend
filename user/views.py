@@ -202,7 +202,6 @@ class EmailAuthView(View):
             return JsonResponse({"error": "MULTIPLE_OBJECTS_ERROR"}, status=400)
 
 
-
 class ActivateView(View):
     def get(self, request, uidb64, token):
         try:
