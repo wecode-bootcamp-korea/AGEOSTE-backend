@@ -5,7 +5,7 @@ import jwt
 
 from django.http                    import JsonResponse, HttpResponse
 from django.views                   import View
-from django.core.exceptions         import ValidationError
+from django.core.exceptions         import ValidationError, ObjectDoesNotExist
 from django.shortcuts               import redirect
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http              import urlsafe_base64_encode, urlsafe_base64_decode
