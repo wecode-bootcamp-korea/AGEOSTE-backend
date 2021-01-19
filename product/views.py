@@ -9,90 +9,84 @@ from user.utils       import check_user
 
 class ProductListView(View):
     def get(self, request):
-        try:
-            page         = int(request.GET.get('page', 1))
-            page_count   = int(request.GET.get('page_count',16))
-            menu         = request.GET.get('menu', None)
-            sub_category = request.GET.get('sub_category', None)
-            colors       = request.GET.getlist('colors', None)
-            sizes        = request.GET.getlist('sizes', None)
-            hashtags     = request.GET.getlist('hashtags', None)
-            order        = request.GET.get('order', 'id') # price, -price, score_avg, name, ?
-            word         = request.GET.get('word', None)
+        page         = int(request.GET.get('page', 1))
+        page_count   = int(request.GET.get('page_count',16))
+        menu         = request.GET.get('menu', None)
+        sub_category = request.GET.get('sub_category', None)
+        colors       = request.GET.getlist('colors', None)
+        sizes        = request.GET.getlist('sizes', None)
+        hashtags     = request.GET.getlist('hashtags', None)
+        order        = request.GET.get('order', 'id') # price, -price, score_avg, name, ?
+        word         = request.GET.get('word', None)
 
-            filter_set = {}
+        filter_set = {}
 
-            if menu:
-                filter_set['menu__name'] = menu
+        if menu:
+            filter_set['menu__name'] = menu
 
-            if sub_category:
-                filter_set['sub_category__name'] = sub_category 
+        if sub_category:
+            filter_set['sub_category__name'] = sub_category 
 
-            if colors:
-                filter_set['productcolorimages__color__name__in'] = colors
+        if colors:
+            filter_set['productcolorimages__color__name__in'] = colors
 
-            if word:
-                filter_set['name__icontains'] = word
+        if word:
+            filter_set['name__icontains'] = word
 
-            if sizes:
-                filter_set['sizes__name__in'] = sizes
+        if sizes:
+            filter_set['sizes__name__in'] = sizes
 
-            if hashtags:
-                filter_set['hashtags__name__in'] = hashtags
+        if hashtags:
+            filter_set['hashtags__name__in'] = hashtags
 
-            products = Product.objects.filter(**filter_set
-            ).prefetch_related('productcolorimages__image', 'reviews'
-            ).annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True)
-            ).order_by(order)
+        products = Product.objects.filter(**filter_set
+        ).prefetch_related('productcolorimages__image', 'reviews'
+        ).annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True)
+        ).order_by(order)
 
-            end_page   = page * page_count
-            start_page = end_page - page_count
-            
-            product_list = [{
-                'id'               : product.id,
-                'name'             : product.name,
+        end_page   = page * page_count
+        start_page = end_page - page_count
+        
+        product_list = [{
+            'id'               : product.id,
+            'name'             : product.name,
+            'price'            : product.price,
+            'discount_rate'    : product.discount_rate,
+            'review_score_avg' : product.score_avg,
+            'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
+            'color_count'      : product.color_count,
+        } for product in products[start_page:end_page]]
+
+        return JsonResponse({
+            'PRODUCT_COUNT : ' : products.count(),
+            'PRODUCTS_LIST : ' : product_list},
+            status=200
+        )
+
+
+class ProductCategoryView(View):
+    def get(self, request, menu):
+        subcategories = SubCategory.objects.filter(menu__name=menu).prefetch_related('products')
+
+        subcategory_items = [{
+            'subcategory_name' : subcategory.name,
+            'subcategory_item' : [{
+                'product_id'       : product.id,
+                'product_name'     : product.name,
                 'price'            : product.price,
                 'discount_rate'    : product.discount_rate,
                 'review_score_avg' : product.score_avg,
                 'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
                 'color_count'      : product.color_count,
-            } for product in products[start_page:end_page]]
+            } for product in subcategory.products.prefetch_related(
+                'productcolorimages__image', 'reviews'
+            ).annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True))][:4]
+        } for subcategory in subcategories]
 
-            return JsonResponse({
-                'PRODUCT_COUNT : ' : products.count(),
-                'PRODUCTS_LIST : ' : product_list},
-                status=200
-            )
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
-
-
-class ProductCategoryView(View):
-    def get(self, request, menu):
-        try:
-            subcategories = SubCategory.objects.filter(menu__name=menu).prefetch_related('products')
-
-            subcategory_items = [{
-                'subcategory_name' : subcategory.name,
-                'subcategory_item' : [{
-                    'product_id'       : product.id,
-                    'product_name'     : product.name,
-                    'price'            : product.price,
-                    'discount_rate'    : product.discount_rate,
-                    'review_score_avg' : product.score_avg,
-                    'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
-                    'color_count'      : product.color_count,
-                } for product in subcategory.products.prefetch_related(
-                    'productcolorimages__image', 'reviews'
-                ).annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True))][:4]
-            } for subcategory in subcategories]
-
-            return JsonResponse({
-                'SUB_CATEGORY_LIST' : subcategory_items},
-                status=200
-            )
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
+        return JsonResponse({
+            'SUB_CATEGORY_LIST' : subcategory_items},
+            status=200
+        )
 
 
 class ProductDetailView(View):
@@ -136,50 +130,45 @@ class ProductDetailView(View):
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE' : "Product does not exist"}, status=400)
 
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
 class ProductSearchView(View):
     def get(self, request):
-        try:
-            page     = int(request.GET.get('page', 1))
-            word     = request.GET.get('word', None)
-            hashtags = request.GET.getlist('hashtags', None)
+        page     = int(request.GET.get('page', 1))
+        word     = request.GET.get('word', None)
+        hashtags = request.GET.getlist('hashtags', None)
 
-            filter_set = {}
+        filter_set = {}
 
-            if word:
-                filter_set['name__icontains'] = word
+        if word:
+            filter_set['name__icontains'] = word
 
-            if hashtags:
-                filter_set['hashtags__name__in'] = hashtags
+        if hashtags:
+            filter_set['hashtags__name__in'] = hashtags
 
-            products = Product.objects.filter(**filter_set
-            ).prefetch_related(
-                'productcolorimages__image', 'reviews'
-            ).annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
+        products = Product.objects.filter(**filter_set
+        ).prefetch_related(
+            'productcolorimages__image', 'reviews'
+        ).annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
 
-            PAGE_COUNT = 20
-            end_page   = page * PAGE_COUNT
-            start_page = end_page - PAGE_COUNT
+        PAGE_COUNT = 20
+        end_page   = page * PAGE_COUNT
+        start_page = end_page - PAGE_COUNT
 
-            product_list = [{
-                'id'               : product.id,
-                'name'             : product.name,
-                'price'            : product.price,
-                'discount_rate'    : product.discount_rate,
-                'review_score_avg' : product.score_avg,
-                'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
-                'color_count'      : product.color_count,
-            } for product in products[start_page:end_page]]
+        product_list = [{
+            'id'               : product.id,
+            'name'             : product.name,
+            'price'            : product.price,
+            'discount_rate'    : product.discount_rate,
+            'review_score_avg' : product.score_avg,
+            'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
+            'color_count'      : product.color_count,
+        } for product in products[start_page:end_page]]
 
-            return JsonResponse({
-                'PRODUCT_COUNT' : products.count(),
-                'PRODUCT_LIST'  : product_list},
-                status=200
-            )
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
+        return JsonResponse({
+            'PRODUCT_COUNT' : products.count(),
+            'PRODUCT_LIST'  : product_list},
+            status=200
+        )
 
 class ReviewView(View):
     @check_user
@@ -199,9 +188,6 @@ class ReviewView(View):
         except KeyError:
             return JsonResponse({'MESSAGE':"KEY_ERROR"}, status=400)
 
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
-
     @check_user
     def put(self, request, product_id, review_id):
         try:
@@ -217,9 +203,6 @@ class ReviewView(View):
 
         except Review.DoesNotExist:
             return JsonResponse({'MESSAGE':"Review does not exist"}, status=400)
-
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
 
     @check_user
     def delete(self, request, product_id, review_id):
@@ -243,10 +226,7 @@ class ReplyView(View):
 
             return JsonResponse({'REPLY_LIST': reply_list}, status=200)
 
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
-
-    # @check_user
+    @check_user
     def post(self, request, product_id, review_id):
         try:
             data = json.loads(request.body)
@@ -264,9 +244,6 @@ class ReplyView(View):
         except KeyError:
             return JsonResponse({"MESSAGE": "KEY_ERROR"}, status=400)
 
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
-
     @check_user
     def put(self, request, product_id, review_id, reply_id):
         try:
@@ -280,9 +257,6 @@ class ReplyView(View):
         except Reply.DoesNotExist:
             return JsonResponse({'MESSAGE':"Reply does not exist"}, status=400)
 
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
-
     @check_user
     def delete(self, request, product_id, review_id, reply_id):
         try:
@@ -291,6 +265,3 @@ class ReplyView(View):
 
         except Reply.DoesNotExist:
             return JsonResponse({'MESSAGE':"Reply does not exist"}, status=400)
-
-        except Exception as e:
-            return JsonResponse({'MESSAGE' : e.args[0]}, status=400)
