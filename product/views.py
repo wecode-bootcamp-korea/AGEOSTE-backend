@@ -8,36 +8,45 @@ from .models          import Product, Review, Reply, ProductColorImage, SubCateg
 from user.utils       import check_user
 
 class ProductListView(View):
-    def get(self, request, menu, sub_category):
+    def get(self, request):
         try:
-            page     = int(request.GET.get('page', 1))
-            order    = request.GET.get('order', 'id') # price, -price, score_avg
-            colors   = request.GET.getlist('colors')
-            sizes    = request.GET.getlist('sizes')
-            hashtags = request.GET.getlist('hashtags')
+            page         = int(request.GET.get('page', 1))
+            page_count   = int(request.GET.get('page_count',16))
+            menu         = request.GET.get('menu', None)
+            sub_category = request.GET.get('sub_category', None)
+            colors       = request.GET.getlist('colors', None)
+            sizes        = request.GET.getlist('sizes', None)
+            hashtags     = request.GET.getlist('hashtags', None)
+            order        = request.GET.get('order', 'id') # price, -price, score_avg, name, ?
+            word         = request.GET.get('word', None)
 
-            filter_set = {
-                "sub_category__name" : sub_category,
-                "menu__name"         : menu,
-            } 
+            filter_set = {}
+
+            if menu:
+                filter_set['menu__name'] = menu
+
+            if sub_category:
+                filter_set['sub_category__name'] = sub_category 
 
             if colors:
                 filter_set['productcolorimages__color__name__in'] = colors
+
+            if word:
+                filter_set['name__icontains'] = word
 
             if sizes:
                 filter_set['sizes__name__in'] = sizes
 
             if hashtags:
                 filter_set['hashtags__name__in'] = hashtags
-            
+
             products = Product.objects.filter(**filter_set
             ).prefetch_related('productcolorimages__image', 'reviews'
             ).annotate(score_avg = Avg('reviews__score'), color_count=Count('colors', distinct=True)
             ).order_by(order)
 
-            PAGE_COUNT = 20
-            end_page   = page * PAGE_COUNT
-            start_page = end_page - PAGE_COUNT
+            end_page   = page * page_count
+            start_page = end_page - page_count
             
             product_list = [{
                 'id'               : product.id,
