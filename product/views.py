@@ -52,14 +52,14 @@ class ProductListView(View):
             'name'             : product.name,
             'price'            : product.price,
             'discount_rate'    : product.discount_rate,
-            'review_score_avg' : product.score_avg,
+            'review_score_avg' : product.score_avg or 0,
             'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
             'color_count'      : product.color_count,
         } for product in products[start_page:end_page]]
 
         return JsonResponse({
-            'PRODUCT_COUNT : ' : products.count(),
-            'PRODUCTS_LIST : ' : product_list},
+            'PRODUCT_COUNT' : products.count(),
+            'PRODUCTS_LIST' : product_list},
             status=200
         )
 
@@ -75,7 +75,7 @@ class ProductCategoryView(View):
                 'product_name'     : product.name,
                 'price'            : product.price,
                 'discount_rate'    : product.discount_rate,
-                'review_score_avg' : product.score_avg,
+                'review_score_avg' : product.score_avg or 0,
                 'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
                 'color_count'      : product.color_count,
             } for product in subcategory.products.prefetch_related(
@@ -130,45 +130,6 @@ class ProductDetailView(View):
         except Product.DoesNotExist:
             return JsonResponse({'MESSAGE' : "Product does not exist"}, status=400)
 
-
-class ProductSearchView(View):
-    def get(self, request):
-        page     = int(request.GET.get('page', 1))
-        word     = request.GET.get('word', None)
-        hashtags = request.GET.getlist('hashtags', None)
-
-        filter_set = {}
-
-        if word:
-            filter_set['name__icontains'] = word
-
-        if hashtags:
-            filter_set['hashtags__name__in'] = hashtags
-
-        products = Product.objects.filter(**filter_set
-        ).prefetch_related(
-            'productcolorimages__image', 'reviews'
-        ).annotate(score_avg = Avg('reviews__score'),color_count=Count('colors', distinct=True)) 
-
-        PAGE_COUNT = 20
-        end_page   = page * PAGE_COUNT
-        start_page = end_page - PAGE_COUNT
-
-        product_list = [{
-            'id'               : product.id,
-            'name'             : product.name,
-            'price'            : product.price,
-            'discount_rate'    : product.discount_rate,
-            'review_score_avg' : product.score_avg,
-            'thumbnail'        : product.productcolorimages.all()[0].image.image_url,
-            'color_count'      : product.color_count,
-        } for product in products[start_page:end_page]]
-
-        return JsonResponse({
-            'PRODUCT_COUNT' : products.count(),
-            'PRODUCT_LIST'  : product_list},
-            status=200
-        )
 
 class ReviewView(View):
     @check_user
