@@ -6,5 +6,5 @@ urlpatterns = [
     path('/signin', SignInView.as_view()),
     path('/account', AccountView.as_view()),
     path('/emailauth', EmailAuthView.as_view()),
-    path('/account/activate/<str:uidb64>/<str:token>', ActivateView.as_view()),
+    path('/emailauth/activate/<str:uidb64>/<str:token>', ActivateView.as_view()),
 ]
