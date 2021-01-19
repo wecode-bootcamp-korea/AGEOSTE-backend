@@ -2,8 +2,8 @@ from django.db import models
 
 
 class Order(models.Model):
-    user       = models.ForeignKey('user.User', on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    user         = models.ForeignKey('user.User', on_delete=models.CASCADE)
+    created_at   = models.DateTimeField(auto_now_add=True)
     order_status = models.ForeignKey('OrderStatus', on_delete=models.CASCADE)
 
     class Meta:
