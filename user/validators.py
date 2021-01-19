@@ -30,3 +30,10 @@ def validate_phone_number(value):
         return False
 
     return True
+
+def validate_birth(value):
+    length_bt = 8
+
+    if len(value) != length_bt:
+        return False
+    return True

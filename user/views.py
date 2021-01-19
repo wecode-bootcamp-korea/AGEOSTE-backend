@@ -16,7 +16,7 @@ from .models     import User
 from .tokens     import account_activation_token
 from my_settings import SECRET, EMAIL
 from .utils      import check_user, active_message
-from .validators import validate_email, validate_password, validate_phone_number
+from .validators import validate_email, validate_password, validate_phone_number, validate_birth
 
 
 class SignUpView(View):
@@ -48,7 +48,7 @@ class SignUpView(View):
                 return JsonResponse({"error": "EXIST_PHONE_NUMBER"}, status=400)
 
             if date_of_birth:
-                if len(date_of_birth) != 8:
+                if not validate_birth(date_of_birth):
                     return JsonResponse({"error": "INVALID_BIRTH"}, status=400)
                 date_of_birth = str(date_of_birth)
                 date_of_birth = f'{date_of_birth[:4]}-{date_of_birth[4:6]}-{date_of_birth[6:]}'
