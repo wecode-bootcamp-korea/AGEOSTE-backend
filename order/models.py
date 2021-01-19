@@ -18,12 +18,13 @@ class OrderStatus(models.Model):
 
 
 class CartItem(models.Model):
-    user    = models.ForeignKey('user.User', on_delete=models.CASCADE)
-    product = models.ForeignKey('product.Product', on_delete=models.CASCADE)
-    size    = models.ForeignKey('product.Size', on_delete=models.CASCADE)
-    color   = models.ForeignKey('product.Color',on_delete=models.CASCADE)
-    order   = models.ForeignKey('Order', on_delete=models.CASCADE)
-    count   = models.IntegerField()
+    user      = models.ForeignKey('user.User', on_delete=models.CASCADE)
+    product   = models.ForeignKey('product.Product', on_delete=models.CASCADE)
+    size      = models.ForeignKey('product.Size', on_delete=models.CASCADE)
+    color     = models.ForeignKey('product.Color',on_delete=models.CASCADE)
+    order     = models.ForeignKey('Order', on_delete=models.CASCADE)
+    thumbnail = models.ForeignKey('product.Image', on_delete=models.CASCADE)
+    count     = models.IntegerField(default=1)
 
     class Meta:
         db_table = 'cart_items'

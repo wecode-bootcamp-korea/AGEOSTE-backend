@@ -14,7 +14,7 @@ def check_user(func):
             request.user = user
 
         except User.DoesNotExist:
-            return JSonResponse({"message": "존재하지 않는 유저입니다."}, status=401)
+            return JsonResponse({"message": "존재하지 않는 유저입니다."}, status=401)
 
         except jwt.DecodeError:
             return JsonResponse({"message": "잘못된 token 입니다."}, status=401)
@@ -22,3 +22,6 @@ def check_user(func):
         return func(self, request, *args, **kwargs)
 
     return wrapper
+
+def active_message(domain, uidb64, token):
+    return f"아래 링크를 클릭하면 회원가입 인증이 완료됩니다.\n\n 회원가입링크 : http://{domain}/user/emailauth/activate/{uidb64}/{token}\n\n감사합니다."

@@ -20,12 +20,20 @@ def validate_password(value):
 
 
 def validate_phone_number(value):
-    regex = re.compile('010-?[0-9]{4}-?[0-9]{4}')
+    regex     = re.compile('010-?[0-9]{4}-?[0-9]{4}')
+    length_pn = 11
 
     if not regex.match(value):
         return False
 
-    if len(value) > 11 :
+    if len(value) > length_pn:
         return False
 
+    return True
+
+def validate_birth(value):
+    length_bt = 8
+
+    if len(value) != length_bt:
+        return False
     return True

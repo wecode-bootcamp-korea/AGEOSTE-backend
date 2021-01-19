@@ -12,6 +12,7 @@ class User(models.Model):
     updated_at    = models.DateTimeField(auto_now=True)
     favorite_shop = models.ForeignKey('Shop', on_delete=models.SET_NULL, null=True, blank=True)
     membership    = models.ForeignKey('Membership', on_delete=models.CASCADE, default = 1)
+    is_active     = models.BooleanField(default=False, null=True, blank=True)
 
     class Meta:
         db_table = 'users'
