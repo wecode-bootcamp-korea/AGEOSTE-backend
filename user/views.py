@@ -4,6 +4,7 @@ import bcrypt
 import jwt
 
 from django.http                    import JsonResponse, HttpResponse
+from django.db                      import transaction
 from django.views                   import View
 from django.core.exceptions         import ValidationError, ObjectDoesNotExist
 from django.shortcuts               import redirect
@@ -20,6 +21,7 @@ from .validators import validate_email, validate_password, validate_phone_number
 
 
 class SignUpView(View):
+    @transaction.atomic
     def post(self, request):
         try:
             data          = json.loads(request.body)
@@ -65,6 +67,8 @@ class SignUpView(View):
             )
             user.full_clean()
             user.save()
+
+            UserCoupon.objects.create(user_id = user.id, coupon_id =1)
 
             return JsonResponse({"message": "SUCCESS"}, status=201)
 
@@ -195,7 +199,7 @@ class EmailAuthView(View):
         except ValidationError:
             return JsonResponse({"error": "VALIDATION_ERROR"}, status=400)
 
-        except UserDoesNotExist:
+        except User.DoesNotExist:
             return JsonResponse({"error": "NON_EXIST_USER"}, status=400)
 
         except MultipleObjectsReturned:
@@ -256,7 +260,7 @@ class CouponView(View):
     @check_user
     def get(self, request):
         user = request.user
-        coupons = UserCoupon.objects.filter(user=user).select_related('user', 'coupon')
+        coupons = UserCoupon.objects.filter(user=user).select_related('coupon')
 
         coupons_list = [{
             "coupon" : coupon.coupon.name,

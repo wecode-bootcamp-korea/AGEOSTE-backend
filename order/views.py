@@ -10,26 +10,37 @@ from user.models import User, UserCoupon, Coupon
 
 class PaymentView(View):
     @check_user
-    def patch(self, request):
-        data          = json.loads(request.body)
-        user          = request.user
-        user_address  = user.address
-        order_address = data.get('address')
+    def put(self, request):
+        try:
+            data          = json.loads(request.body)
+            user          = request.user
+            user_address  = user.address
+            order_address = data.get('address')
 
-        if user_address is None:
-            User.objects.filter(id=user.id).update(address=order_address)
-            return JsonResponse({"message": "SUCCESS"}, status=200)
+            order_address = user_address
+
+            if order_address is None:
+                User.objects.filter(id=user.id).update(address=order_address)
+                return JsonResponse({"message": "SUCCESS"}, status=200)
+
+            else:
+                order_address = user_address
+                return JsonResponse({"message": "SUCCESS"}, status=200)
+
+        except KeyError:
+            return JsonResponse({"error": "INVALID_ADDRESS"}, status=400)
 
 
     @check_user
     def get(self, request):
         try:
             user    = request.user
-            carts   = Cart.objects.filter(user=user).select_related('product', 'user', 'size', 'color')
-            coupons = UserCoupon.objects.filter(user=user).select_related('user', 'coupon')
+            carts   = Cart.objects.filter(user=user).select_related('product', 'size', 'color')
+            coupons = UserCoupon.objects.filter(user=user).select_related('coupon')
 
             carts_list = [{
                 "product"       : cart.product.name,
+                "price"         : cart.product.price,
                 "discount_rate" : cart.product.discount_rate,
                 "size"          : cart.size.name,
                 "color"         : cart.color.name,
@@ -49,7 +60,7 @@ class PaymentView(View):
 
             return JsonResponse({"carts_list" : carts_list, "coupons_list" : coupons_list, "membership" : membership}, status=200)
 
-        except CartDoesNotExist:
+        except Cart.DoesNotExist:
             return JsonResponse({"error": "INVALID_CART"}, status=400)
 
         except KeyError:
