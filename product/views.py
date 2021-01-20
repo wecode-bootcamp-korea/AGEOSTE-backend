@@ -111,7 +111,7 @@ class ProductDetailView(View):
                 'description' : review.description,
                 'created_at'  : review.created_at,
             } for review in product.reviews.select_related('user')]
-
+            
             product_info = {
                 "name"             : product.name,
                 "code"             : product.code,
@@ -139,7 +139,7 @@ class ReviewView(View):
 
             Review.objects.create(
                 user        = request.user,
-                product     = Product.objects.get(id=product_id),
+                product_id  = product_id,
                 score       = data['score'],
                 description = data['description'],
                 image_url   = data.get('image_url', None),

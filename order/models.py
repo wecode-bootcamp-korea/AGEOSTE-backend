@@ -17,14 +17,14 @@ class OrderStatus(models.Model):
         db_table = 'order_statuses'
 
 
-class CartItem(models.Model):
-    user      = models.ForeignKey('user.User', on_delete=models.CASCADE)
+class Cart(models.Model):
+    user      = models.ForeignKey('user.User', related_name='carts', on_delete=models.CASCADE)
     product   = models.ForeignKey('product.Product', on_delete=models.CASCADE)
     size      = models.ForeignKey('product.Size', on_delete=models.CASCADE)
     color     = models.ForeignKey('product.Color',on_delete=models.CASCADE)
-    order     = models.ForeignKey('Order', on_delete=models.CASCADE)
+    order     = models.ForeignKey('Order', on_delete=models.CASCADE, null=True, blank=True)
     thumbnail = models.ForeignKey('product.Image', on_delete=models.CASCADE)
     count     = models.IntegerField(default=1)
 
     class Meta:
-        db_table = 'cart_items'
+        db_table = 'carts'
