@@ -92,8 +92,7 @@ class ProductCategoryView(View):
 class ProductDetailView(View):
     def get(self, request, product_id):
         try:
-            product            = Product.objects.get(id=product_id)
-            review_score_avg   = product.reviews.aggregate(review_score_avg = Avg('score'))
+            product            = Product.objects.annotate(score_avg = Avg('reviews__score')).get(id=product_id)
             productcolorimages = ProductColorImage.objects.filter(product=product)
 
             product_info = {
@@ -103,7 +102,7 @@ class ProductDetailView(View):
                 "description"      : product.description,
                 "price"            : product.price,
                 "sail_percent"     : product.discount_rate,
-                "review_score_avg" : int(round(review_score_avg['review_score_avg'],0)),
+                "review_score_avg" : product.score_avg,
 
                 "hashtags" : [{
                     "hashtag_id"   : hashtag.id,
