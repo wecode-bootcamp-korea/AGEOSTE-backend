@@ -24,7 +24,7 @@ class Cart(models.Model):
     color     = models.ForeignKey('product.Color',on_delete=models.CASCADE)
     order     = models.ForeignKey('Order', on_delete=models.CASCADE, null=True, blank=True)
     thumbnail = models.ForeignKey('product.Image', on_delete=models.CASCADE)
-    count     = models.IntegerField(default=1)
+    quantity  = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'carts'

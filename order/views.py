@@ -11,23 +11,19 @@ from user.utils       import check_user
 class CartView(View):
     @check_user
     def get(self, request):
-        try:
-            carts = request.user.carts.all().select_related("product", "size", "color", "thumbnail")
+        carts = request.user.carts.select_related("product", "size", "color", "thumbnail")
 
-            cart_list = [{
-                "name"          : cart.product.name,
-                "price"         : cart.product.price,
-                "discount_rate" : cart.product.discount_rate,
-                "thumbnail"     : cart.thumbnail.image_url,
-                "size"          : cart.size.name,
-                "color"         : cart.color.name,
-                "count"         : cart.count,
-            }for cart in carts]
+        cart_list = [{
+            "name"          : cart.product.name,
+            "price"         : cart.product.price,
+            "discount_rate" : cart.product.discount_rate,
+            "thumbnail"     : cart.thumbnail.image_url,
+            "size"          : cart.size.name,
+            "color"         : cart.color.name,
+            "count"         : cart.quantity,
+        }for cart in carts]
 
-            return JsonResponse({'SUB_CATEGORY_LIST' : cart_list},status=200)
-
-        except Cart.DoesNotExist:
-            return JsonResponse({'MESSAGE' : "Cart does not exist"}, status=400)
+        return JsonResponse({'CART_LIST' : cart_list},status=200)
 
     @check_user
     def post(self, request):
@@ -38,27 +34,18 @@ class CartView(View):
             image      = Image.objects.get(image_url=data['image']) # 프론트에서 이미지url보내는 방향으로 이야기, or product -> productcolorimages(product, color로 검색) -> image
             product_id = data['product_id']
 
-            try:
-                cart = Cart.objects.get(
-                    user       = request.user,
-                    product_id = product_id,
-                    size       = size,
-                    color      = color,
-                )
-                cart.count+=1
-                cart.save()
+            cart, _ = Cart.objects.get_or_create(
+                user       = request.user,
+                product_id = product_id, 
+                size       = size,
+                color      = color,
+                thumbnail  = image,
+            )
 
-                return JsonResponse({"MESSAGE" : "Cart 수량 추가"}, status=200)
+            cart.quantity +=1
+            cart.save()
 
-            except Cart.DoesNotExist:
-                Cart.objects.create(
-                    user       = request.user,
-                    product_id = product_id,
-                    size       = size,
-                    color      = color,
-                    thumbnail  = image
-                )  
-                return JsonResponse({"MESSAGE" : "Create Cart"}, status=201)
+            return JsonResponse({"MESSAGE" : "Create Cart"}, status=201)
 
         except Size.DoesNotExist:
             return JsonResponse({'MESSAGE' : "Size does not exist"}, status=400)
@@ -80,7 +67,7 @@ class CartView(View):
         try:
             data       = json.loads(request.body)
             cart       = Cart.objects.get(user = request.user, id = data['cart_id'])
-            cart.count = data['cart_id']
+            cart.count = data['count']
             cart.save()
 
             return JsonResponse({'MESSAGE' : '카트의 수량을 수정했습니다.'}, status=200)
