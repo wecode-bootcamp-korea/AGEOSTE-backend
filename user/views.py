@@ -12,7 +12,7 @@ from django.utils.http              import urlsafe_base64_encode, urlsafe_base64
 from django.core.mail               import EmailMessage
 from django.utils.encoding          import force_bytes, force_text
 
-from .models     import User
+from .models     import User, UserCoupon, Coupon
 from .tokens     import account_activation_token
 from my_settings import SECRET, EMAIL
 from .utils      import check_user, active_message
@@ -250,3 +250,18 @@ class KakaoSignInView(View):
 
         except KeyError:
             return JsonResponse({"error": "KEY_ERROR"})
+
+
+class CouponView(View):
+    @check_user
+    def get(self, request):
+        user = request.user
+        coupons = UserCoupon.objects.filter(user=user).select_related('user', 'coupon')
+
+        coupons_list = [{
+            "coupon" : coupon.coupon.name,
+            "discount_rate" : coupon.coupon.discount_rate,
+            "description" : coupon.coupon.description
+        } for coupon in coupons]
+
+        return JsonResponse({"coupons_list": coupons_list}, status=200)
