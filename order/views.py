@@ -28,18 +28,13 @@ class CartView(View):
     @check_user
     def post(self, request):
         try:
-            data       = json.loads(request.body)
-            size       = Size.objects.get(name=data['size']) # 이 부분 create에서 한줄로 쓰는 방법, id를 입력받는것은 힘듬. name값으로 무조건 받아야 하는 상황.
-            color      = Color.objects.get(name=data['color'])
-            image      = Image.objects.get(image_url=data['image']) # 프론트에서 이미지url보내는 방향으로 이야기, or product -> productcolorimages(product, color로 검색) -> image
-            product_id = data['product_id']
-
+            data    = json.loads(request.body)
             cart, _ = Cart.objects.get_or_create(
-                user       = request.user,
-                product_id = product_id, 
-                size       = size,
-                color      = color,
-                thumbnail  = image,
+                user         = request.user,
+                product_id   = data['product_id'], 
+                size_id      = data['size_id'],
+                color_id     = data['color_id'],
+                thumbnail_id = data['image_id'],
             )
 
             cart.quantity +=1

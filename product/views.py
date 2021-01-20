@@ -96,12 +96,15 @@ class ProductDetailView(View):
             review_score_avg   = product.reviews.aggregate(review_score_avg = Avg('score'))
             productcolorimages = ProductColorImage.objects.filter(product=product)
 
-            color_images = [{
-                'color_name' : color_name['color__name'],
-                'img' : [
-                    color_image.image.image_url
-                for color_image in productcolorimages.filter(color__name=color_name['color__name']).select_related('image')
-            ]} for color_name in productcolorimages.values('color__name').distinct()]
+            colors = [{
+                'color_id'   : color_values['color_id'],
+                'color_name' : color_values['color__name'],
+                'img' : [{
+                    'color_image_id'  : color_image.image.id,
+                    'color_image_url' : color_image.image.image_url
+                }
+                for color_image in productcolorimages.filter(color_id=color_values['color_id']).select_related('image')
+            ]} for color_values in productcolorimages.values('color_id', 'color__name').distinct()]
 
             review = [{
                 "review"      : review.id,
@@ -113,15 +116,22 @@ class ProductDetailView(View):
             } for review in product.reviews.select_related('user')]
             
             product_info = {
+                "id"               : product.id,
                 "name"             : product.name,
                 "code"             : product.code,
                 "description"      : product.description,
                 "price"            : product.price,
                 "sail_percent"     : product.discount_rate,
                 "review_score_avg" : int(round(review_score_avg['review_score_avg'],0)),
-                "hashtags"         : [hashtag.name for hashtag in product.hashtags.all()],
-                "sizes"            : [size.name for size in product.sizes.all()],
-                "color_images"     : color_images,
+                "hashtags"         : [{
+                    "hashtag_id"   : hashtag.id,
+                    "hashtag_name" : hashtag.name
+                } for hashtag in product.hashtags.all()],
+                "sizes"            : [{
+                    "size_id" : size.id, 
+                    "size_name" : size.name
+                } for size in product.sizes.all()],
+                "colors"           : colors,
                 "review"           : review,
             }
 
