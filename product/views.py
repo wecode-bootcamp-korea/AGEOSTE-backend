@@ -101,7 +101,7 @@ class ProductDetailView(View):
                 "code"             : product.code,
                 "description"      : product.description,
                 "price"            : product.price,
-                "discount_rate"     : product.discount_rate,
+                "discount_rate"    : product.discount_rate,
                 "review_score_avg" : product.score_avg,
 
                 "hashtags" : [{
