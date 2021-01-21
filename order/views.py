@@ -3,10 +3,11 @@ import json
 from django.views     import View
 from django.http      import JsonResponse
 
-from .models          import Cart
-from product.models   import Product, Color, Size, Image
-from user.models      import User, UserCoupon, Coupon
-from user.utils       import check_user
+from .models                import Cart
+from product.models         import Product, Color, Size, Image
+from user.models            import User, UserCoupon, Coupon
+from user.utils             import check_user
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class CartView(View):
@@ -32,7 +33,7 @@ class CartView(View):
             data    = json.loads(request.body)
             cart, _ = Cart.objects.get_or_create(
                 user         = request.user,
-                product_id   = data['product_id'], 
+                product_id   = data['product_id'],
                 size_id      = data['size_id'],
                 color_id     = data['color_id'],
                 thumbnail_id = data['image_id'],
