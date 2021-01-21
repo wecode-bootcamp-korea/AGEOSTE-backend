@@ -18,13 +18,13 @@ class OrderStatus(models.Model):
 
 
 class Cart(models.Model):
-    user      = models.ForeignKey('user.User', on_delete=models.CASCADE)
+    user      = models.ForeignKey('user.User', related_name='carts', on_delete=models.CASCADE)
     product   = models.ForeignKey('product.Product', on_delete=models.CASCADE)
     size      = models.ForeignKey('product.Size', on_delete=models.CASCADE)
     color     = models.ForeignKey('product.Color',on_delete=models.CASCADE)
     order     = models.ForeignKey('Order', on_delete=models.CASCADE, null=True, blank=True)
     thumbnail = models.ForeignKey('product.Image', on_delete=models.CASCADE)
-    quantity  = models.IntegerField(default=1)
+    quantity  = models.IntegerField(default=0)
 
     class Meta:
         db_table = 'carts'
