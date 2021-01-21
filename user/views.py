@@ -118,6 +118,7 @@ class AccountView(View):
             'phone_number' : mypage_phone_number,
             'date_of_birth': user.date_of_birth,
             'address'      : user.address,
+            'is_active'    : user.is_active,
             'membership'   : {
                 'grade'        : user.membership.grade,
                 'discount_rate': user.membership.discount_rate

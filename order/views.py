@@ -10,21 +10,20 @@ from user.models import User, UserCoupon, Coupon
 
 class PaymentView(View):
     @check_user
-    def put(self, request):
+    def patch(self, request):
         try:
             data          = json.loads(request.body)
             user          = request.user
             user_address  = user.address
             order_address = data.get('address')
 
-            order_address = user_address
-
-            if order_address is None:
+            if user_address is None:
                 User.objects.filter(id=user.id).update(address=order_address)
                 return JsonResponse({"message": "SUCCESS"}, status=200)
 
             else:
                 order_address = user_address
+                User.object.filter(id=user.id).update(address=order_address)
                 return JsonResponse({"message": "SUCCESS"}, status=200)
 
         except KeyError:
@@ -35,7 +34,7 @@ class PaymentView(View):
     def get(self, request):
         try:
             user    = request.user
-            carts   = Cart.objects.filter(user=user).select_related('product', 'size', 'color')
+            carts   = Cart.objects.filter(user=user)
             coupons = UserCoupon.objects.filter(user=user).select_related('coupon')
 
             carts_list = [{
