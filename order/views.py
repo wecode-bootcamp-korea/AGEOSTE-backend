@@ -98,13 +98,8 @@ class PaymentView(View):
             user_address  = user.address
             order_address = data.get('address')
 
-            if user_address is None:
+            if order_address:
                 User.objects.filter(id=user.id).update(address=order_address)
-                return JsonResponse({"message": "SUCCESS"}, status=200)
-
-            else:
-                order_address = user_address
-                User.object.filter(id=user.id).update(address=order_address)
                 return JsonResponse({"message": "SUCCESS"}, status=200)
 
         except KeyError:
