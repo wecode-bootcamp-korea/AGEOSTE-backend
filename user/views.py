@@ -4,6 +4,7 @@ import bcrypt
 import jwt
 
 from django.http                    import JsonResponse, HttpResponse
+from django.db                      import transaction
 from django.views                   import View
 from django.core.exceptions         import ValidationError, ObjectDoesNotExist
 from django.shortcuts               import redirect
@@ -12,7 +13,7 @@ from django.utils.http              import urlsafe_base64_encode, urlsafe_base64
 from django.core.mail               import EmailMessage
 from django.utils.encoding          import force_bytes, force_text
 
-from .models     import User
+from .models     import User, UserCoupon, Coupon
 from .tokens     import account_activation_token
 from my_settings import SECRET, EMAIL
 from .utils      import check_user, active_message
@@ -20,6 +21,7 @@ from .validators import validate_email, validate_password, validate_phone_number
 
 
 class SignUpView(View):
+    @transaction.atomic
     def post(self, request):
         try:
             data          = json.loads(request.body)
@@ -65,6 +67,8 @@ class SignUpView(View):
             )
             user.full_clean()
             user.save()
+
+            UserCoupon.objects.create(user_id = user.id, coupon_id =1)
 
             return JsonResponse({"message": "SUCCESS"}, status=201)
 
@@ -114,6 +118,7 @@ class AccountView(View):
             'phone_number' : mypage_phone_number,
             'date_of_birth': user.date_of_birth,
             'address'      : user.address,
+            'is_active'    : user.is_active,
             'membership'   : {
                 'grade'        : user.membership.grade,
                 'discount_rate': user.membership.discount_rate
@@ -195,7 +200,7 @@ class EmailAuthView(View):
         except ValidationError:
             return JsonResponse({"error": "VALIDATION_ERROR"}, status=400)
 
-        except UserDoesNotExist:
+        except User.DoesNotExist:
             return JsonResponse({"error": "NON_EXIST_USER"}, status=400)
 
         except MultipleObjectsReturned:
@@ -250,3 +255,18 @@ class KakaoSignInView(View):
 
         except KeyError:
             return JsonResponse({"error": "KEY_ERROR"})
+
+
+class CouponView(View):
+    @check_user
+    def get(self, request):
+        user         = request.user
+        user_coupons = UserCoupon.objects.filter(user=user).select_related('coupon')
+
+        coupons_list = [{
+            "coupon"        : user_coupon.coupon.name,
+            "discount_rate" : user_coupon.coupon.discount_rate,
+            "description"   : user_coupon.coupon.description
+        } for coupon in coupons]
+
+        return JsonResponse({"coupons_list": coupons_list}, status=200)
