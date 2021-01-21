@@ -114,9 +114,9 @@ class PaymentView(View):
     @check_user
     def get(self, request):
         try:
-            user    = request.user
-            carts   = Cart.objects.filter(user=user)
-            coupons = UserCoupon.objects.filter(user=user).select_related('coupon')
+            user         = request.user
+            carts        = Cart.objects.filter(user=user).select_related('product', 'size', 'color')
+            user_coupons = UserCoupon.objects.filter(user=user).select_related('coupon')
 
             carts_list = [{
                 "product"       : cart.product.name,
@@ -129,9 +129,9 @@ class PaymentView(View):
             } for cart in carts]
 
             coupons_list = [{
-                "coupon"               : coupon.coupon.name,
-                "coupon_discount_rate" : coupon.coupon.discount_rate
-            } for coupon in coupons]
+                "coupon"               : user_coupon.coupon.name,
+                "coupon_discount_rate" : user_coupon.coupon.discount_rate
+            } for coupon in user_coupons]
 
             membership = {
                 "grade"         : user.membership.grade,

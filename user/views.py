@@ -260,13 +260,13 @@ class KakaoSignInView(View):
 class CouponView(View):
     @check_user
     def get(self, request):
-        user = request.user
-        coupons = UserCoupon.objects.filter(user=user).select_related('coupon')
+        user         = request.user
+        user_coupons = UserCoupon.objects.filter(user=user).select_related('coupon')
 
         coupons_list = [{
-            "coupon" : coupon.coupon.name,
-            "discount_rate" : coupon.coupon.discount_rate,
-            "description" : coupon.coupon.description
+            "coupon"        : user_coupon.coupon.name,
+            "discount_rate" : user_coupon.coupon.discount_rate,
+            "description"   : user_coupon.coupon.description
         } for coupon in coupons]
 
         return JsonResponse({"coupons_list": coupons_list}, status=200)
