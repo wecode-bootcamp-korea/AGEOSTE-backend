@@ -1,8 +1,9 @@
 # TEAM AGEOSTE 🐊
 #### 2021.01.11 ~ 2021.01.22
-안녕하세요, [Lacoste](https://www.lacoste.com/kr/) 사이트의 클론 코딩 프로젝트를 진행하게 된 Team AGEOSTE(아거스테🐊) 입니다. 녹빛의 악어 모양 로고로 유명한 Lacoste 는 1933년 테니스 선수 르네 라코스트에 의해 설립된 프랑스의 패션 브랜드입니다. 클래식하면서도 캐쥬얼한 이미지의 스포츠 웨어들을 판매하며, 해당 사이트에서는 라코스테의 제품들을 컬러별로 또 그리고 테마별로 분류하여 게시해두고 있습니다. 약 2주간의 기간동안 초기 세팅부터 디자인, 회원가입/로그인/장바구니 를 포함한 기본적인 기능은 UI 까지 연결하여 전부 구현하였으나 검색/필터/리뷰 등의 기능은 시간 상 기능만 구현해두고 연결로는 이어지지 못했습니다.
+안녕하세요, [lacoste](https://www.lacoste.com/kr/) 사이트의 클론 코딩 프로젝트를 진행하게 된 Team AGEOSTE(아거스테🐊) 입니다. 녹빛의 악어 모양 로고로 유명한 Lacoste 는 1933년 테니스 선수 르네 라코스트에 의해 설립된 프랑스의 패션 브랜드입니다. 클래식하면서도 캐쥬얼한 이미지의 스포츠 웨어들을 판매하며, 해당 사이트에서는 라코스테의 제품들을 컬러별로 또 그리고 테마별로 분류하여 게시해두고 있습니다. 약 2주간의 기간동안 초기 세팅부터 디자인, 회원가입/로그인/장바구니 를 포함한 기본적인 기능은 UI 까지 연결하여 전부 구현하였으나 검색/필터/리뷰 등의 기능은 시간 상 기능만 구현해두고 연결로는 이어지지 못했습니다.
 ## Preview
-<a href="https://youtu.be/yaO4jlIrlY8"> preview video </a>
+[![team ageoste](https://s3.us-west-2.amazonaws.com/secure.notion-static.com/65c4b853-7d27-4210-9066-8908088d8b15/Group_95.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAT73L2G45O3KS52Y5%2F20210124%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20210124T073749Z&X-Amz-Expires=86400&X-Amz-Signature=9736cb032b65eaa471033b3a9b37d342b6abc0e5a2ba3ce3a93cb1727d37cd69&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22Group_95.png%22)](https://youtu.be/AaLQSa29Ias)
+
 ## Member 🕺🏻 <br>
 ### Front <a href="https://github.com/wecode-bootcamp-korea/AGEOSTE-frontend"> git repo </a> <br>
 유재현 <a href="https://github.com/JaehyunYoo"> git repo </a> // 박영호 <a href="https://github.com/youngho052"> git repo </a> <br>
@@ -23,10 +24,10 @@ trello 를 이용하여 서로간의 진행 상황을 공유할 수 있도록 �
 - <a href="https://www.notion.so/team-AGEOSTE-Json-b6664ee5935746b3a61e8a4a6e68c592"> API document notion </a> <br>
 front / back 간의 의사 소통을 수월히 하기 위하여 Json API document 를 만들어 공유하였습니다. 
 
-## Modeling
+## Modeling 📑
 <img src="https://media.vlpt.us/images/sue517/post/8ac3296a-f516-48cf-9203-2cf9c2b4d77b/%E1%84%89%E1%85%B3%E1%84%8F%E1%85%B3%E1%84%85%E1%85%B5%E1%86%AB%E1%84%89%E1%85%A3%E1%86%BA%202021-01-12%20%E1%84%8B%E1%85%A9%E1%84%92%E1%85%AE%207.24.11.png">
 
-## Functions
+## Functions 🔍
 - 회원가입 (using validators)
 - bcrypt 를 이용한 비밀번호 암호화
 - JWT 를 이용하여 access token 발행
