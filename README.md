@@ -33,10 +33,14 @@ front / back 간의 의사 소통을 수월히 하기 위하여 Json API documen
 - smtp 를 이용한 이메일 인증 구현
 - kakao 소셜 로그인 기능 구현
 
-- 상품 list views
-- 
+- 상품 리스트, 상세 페이지 뷰
+- 상품 검색 기능
+- 상품 필터 기능
+- 상품 리뷰 기능
+- 리뷰 댓글 기능
+- DB 업로드 작성 
 
-- 장바구니 리스트 views
+- 장바구니 기능
 - 배송지 read & update 기능 구현
 
 ## Reference 
