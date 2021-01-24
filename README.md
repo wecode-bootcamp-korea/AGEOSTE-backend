@@ -28,19 +28,19 @@ front / back 간의 의사 소통을 수월히 하기 위하여 Json API documen
 - 회원가입 (using validators)
 - bcrypt 를 이용한 비밀번호 암호화
 - JWT 를 이용하여 access token 발행
-- 로그인 (using validation) // decorator
-- 마이페이지 수정
-- 마이페이지 이메일 인증 구현 (인증되지 않은 메일에서 인증된 메일로 전환)
-- kakao 소셜 로그인 구현
-<br>
+- 로그인 (using validators) // decorator 생성
+- 마이페이지 read & update
+- smtp 를 이용한 이메일 인증 구현
+- kakao 소셜 로그인 기능 구현
+
 - 상품 list views
 - 
-<br>
+
 - 장바구니 리스트 views
-- 배송지 수정 기능 구현
+- 배송지 read & update 기능 구현
 
 ## Reference 
 
-- 이 프로젝트는 [라코스테](https://www.lacoste.com/kr/) 사이트를 참조하여 학습목적으로 만들었습니다.
+- 이 프로젝트는 [lacoste](https://www.lacoste.com/kr/) 사이트를 참조하여 학습목적으로 만들었습니다.
 - 실무수준의 프로젝트이지만 학습용으로 만들었기 때문에 이 코드를 활용하여 이득을 취하거나 무단 배포할 경우 법적으로 문제될 수 있습니다.
 - 이 프로젝트에서 사용하고 있는 사진 대부분은 위코드에서 구매한 것이므로 해당 프로젝트 외부인이 사용할 수 없습니다.
